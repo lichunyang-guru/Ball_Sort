@@ -30,6 +30,7 @@ public class GameConfig : MonoSingleton<GameConfig>
     float curIdleTime = 0f;
     bool isStartIdle = false;
     bool isPlayBGM = false;
+    bool hasReceivedScreenInput = false;
 
     void Update()
     {
@@ -95,7 +96,17 @@ public class GameConfig : MonoSingleton<GameConfig>
 
     private void TryPlayBGMOnInput()
     {
+        if (isPlayBGM || !isEnableBGM)
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0) || Input.touchCount > 0)
+        {
+            hasReceivedScreenInput = true;
+        }
+
+        if (hasReceivedScreenInput)
         {
             PlayBGM();
         }

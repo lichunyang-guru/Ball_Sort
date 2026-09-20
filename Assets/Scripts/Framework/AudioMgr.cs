@@ -9,7 +9,7 @@ public class AudioMgr : MonoSingleton<AudioMgr>
     private static readonly Dictionary<string, string[]> AudioNameAliases = new Dictionary<string, string[]>
     {
         { "点击", new[] { "手指点击" } },
-        { "落下", new[] { "球下落" } },
+        { "下落", new[] { "球下落" } },
         { "完成", new[] { "合成完成音效" } }
     };
 

@@ -532,14 +532,14 @@ public class BallView : MonoBehaviour
         {
             sequence.AppendCallback(() => waterTransferVisual.PlayDown(dropDuration));
         }
-        Tween dropTween = transform.DOMove(targetSlotPosition, dropDuration).SetEase(Ease.InQuad);
-        dropTween.OnComplete(() =>
+        sequence.AppendCallback(() =>
         {
             if (AudioMgr.Instance != null)
             {
-                AudioMgr.Instance.Play("落下");
+                AudioMgr.Instance.Play("下落");
             }
         });
+        Tween dropTween = transform.DOMove(targetSlotPosition, dropDuration).SetEase(Ease.InQuad);
         sequence.Append(dropTween);
         if (waterTransferVisual != null)
         {

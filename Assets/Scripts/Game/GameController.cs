@@ -110,7 +110,7 @@ public class GameController : MonoBehaviour
     [Tooltip("同一列内，上下小球开始落下的间隔。")]
     [SerializeField] private float introDropSameColumnInterval = 0.04f;
     [Tooltip("开局小球落下时播放的音效名称。")]
-    [SerializeField] private string introDropSfxName = "落下";
+    [SerializeField] private string introDropSfxName = "下落";
     [Tooltip("开局落球时，每隔几颗球补一次音效。")]
     [SerializeField] private int introDropSfxBallInterval = 2;
     [Tooltip("开局落球音效两次播放之间的最短间隔。")]
@@ -828,6 +828,7 @@ public class GameController : MonoBehaviour
         Sequence drop = column.CreateDropSequence(
             tubeView.GetSlotWorldPosition(bottomSlotIndex),
             Mathf.Max(0.01f, selectionTweenDuration));
+        drop.InsertCallback(0f, () => PlaySfxSafe("下落"));
         BindLandingSurfaceColor(drop, tubeView, bottomSlotIndex, column,
             0f, Mathf.Max(0.01f, selectionTweenDuration));
         return drop;

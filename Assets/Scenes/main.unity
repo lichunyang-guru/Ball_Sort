@@ -948,11 +948,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51be17573a6c44d46baf43d2d6aacba1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BGM: {fileID: 8300000, guid: 16714986e931143f79d5d88f8adef51f, type: 3}
+  BGM: {fileID: 8300000, guid: c41246d72ab2246549c83f6f458e9a32, type: 3}
   audioClips:
-  - {fileID: 8300000, guid: 7171dc59aafd14656984739b0f930099, type: 3}
-  - {fileID: 8300000, guid: f0642c177571f4eb4be0c57e5d2b466a, type: 3}
-  - {fileID: 8300000, guid: a829b836234484071b52a6ad53ae0c94, type: 3}
+  - {fileID: 8300000, guid: edc467289c8864e409ff3d2316770268, type: 3}
+  - {fileID: 8300000, guid: 4325a8e6819b24b73961a1fcee76737b, type: 3}
+  - {fileID: 8300000, guid: 32bb1887e81e349cdbe50db40a8b9ef5, type: 3}
   bgmVolume: 1
   effectVolume: 1
   prewarmEffectSourceCount: 8
@@ -1290,7 +1290,7 @@ MonoBehaviour:
   introDropDuration: 0.15
   introDropStartInterval: 0.14
   introDropSameColumnInterval: 0.24
-  introDropSfxName: "\u843D\u4E0B"
+  introDropSfxName: "\u4E0B\u843D"
   introDropSfxBallInterval: 1
   introDropSfxMinInterval: 0.06
   selectionLiftHeight: -1
@@ -3350,7 +3350,6 @@ MonoBehaviour:
   gameRoot: {fileID: 291055173}
   guidePanel: {fileID: 8445018085462804316}
   streamMaterial: {fileID: 2100000, guid: 17af35473e1042aa8d92992f47d3e5f9, type: 2}
-  streamColor: {r: 0.15, g: 0.7, b: 1, a: 1}
   streamWidth: 0.2
   emissionDuration: 2.2
   moveDuration: 0.65
