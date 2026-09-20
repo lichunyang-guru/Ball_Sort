@@ -1302,7 +1302,7 @@ MonoBehaviour:
   transferArcHeight: 0.7
   travelDuration: 0.25
   dropDuration: 0.3
-  followInterval: 0.12
+  followInterval: 0.05
   onPuzzleSolved:
     m_PersistentCalls:
       m_Calls: []

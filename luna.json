@@ -30256,6 +30256,10 @@
                     {
                         "name": "RefreshTubeColumnsIfIdle",
                         "excluded": false
+                    },
+                    {
+                        "name": "RunMovingColumn",
+                        "excluded": false
                     }
                 ]
             },

@@ -60,7 +60,6 @@ public class GameController : MonoBehaviour
         public int targetStartCount;
         public bool targetCompletedByMove;
         public bool puzzleSolvedByMove;
-        public bool animationFinished;
     }
 
     private sealed class IntroDropState
@@ -548,7 +547,8 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        if (IsTubeSelectionLocked(clickedView)) return;
+        // 接收中的管子已经预占容量，可以继续接收；出水中的管子仍由跟随流程占用。
+        if (GetPendingMoveCount(pendingOutgoingMoves, clickedView) > 0) return;
         MoveEvaluation move = currentSelection.sourceModel.EvaluateMoveTo(clickedModel);
         if (move.IsValid)
         {
@@ -809,7 +809,6 @@ public class GameController : MonoBehaviour
             gamePhase = GamePhase.Win;
         }
 
-        AddPendingOutgoing(selection.sourceView);
         AddPendingIncoming(targetView);
 
         return preparedMove;
@@ -964,13 +963,11 @@ public class GameController : MonoBehaviour
         BallColorType color = preparedMove.move.Color;
         AddPendingOutgoing(source);
         AddPendingIncoming(target);
-        List<PreparedMoveState> launchedMoves = new List<PreparedMoveState>();
         try
         {
             PreparedMoveState next = preparedMove;
             while (true)
             {
-                launchedMoves.Add(next);
                 StartCoroutine(RunMovingColumn(next));
 
                 TubeModel sourceModel = tubeModels[source];
@@ -981,16 +978,23 @@ public class GameController : MonoBehaviour
 
                 // Launch the next segment while earlier segments are still in flight.
                 if (followInterval > 0f) yield return new WaitForSeconds(followInterval);
+                nextMove = sourceModel.EvaluateMoveTo(targetModel);
+                if (!nextMove.IsValid) break;
                 SelectionState following = CreateSelection(source, sourceModel);
                 yield return PlaySelectTubeRoutine(following);
+                // 抬起期间，其他源管可能已经占用目标的剩余容量。
+                nextMove = sourceModel.EvaluateMoveTo(targetModel);
+                if (!nextMove.IsValid)
+                {
+                    yield return AnimateSelectionReturnRoutine(following);
+                    break;
+                }
                 next = PrepareMove(following, target, targetModel, nextMove);
             }
-
-            foreach (PreparedMoveState launched in launchedMoves)
-                while (!launched.animationFinished) yield return null;
         }
         finally
         {
+            // 所有跟随段出发后立即释放源管，飞行中的水柱已归目标管所有。
             RemovePendingOutgoing(source);
             RemovePendingIncoming(target);
         }
@@ -1006,8 +1010,6 @@ public class GameController : MonoBehaviour
         }
         finally
         {
-            move.animationFinished = true;
-            RemovePendingOutgoing(move.sourceView);
             RemovePendingIncoming(move.targetView);
         }
         // Do not regroup a target that still has incoming segments.
