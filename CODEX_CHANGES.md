@@ -1,3 +1,45 @@
+## 2026-09-20 清理停用的水流 Shader
+
+**原因**
+蓝色贴图水流已改用 Unity 自带材质 Shader，旧自定义水流 Shader 不再使用。
+
+**修改**
+- 删除 WaterStream.shader 及其 .meta。
+- 从 SVC_Luna 中移除对应的变体、构建使用记录及解析缓存，共 4 项。
+- 保留场景仍使用的 WaterStream.mat，以及 body.prefab 使用的 WaterBodyReveal 材质和 Shader。
+
+**主要文件**
+- `Assets/prefabs/Water/WaterStream.shader` 及 `.meta`（删除）
+- `Assets/SVC_Luna.asset`
+
+**Unity 编辑器操作**
+无，等待资源刷新即可。
+
+**注意**
+已检查 Assets、ProjectSettings、Packages 的引用，删除的 Shader GUID 无残留；未重新导出 Luna。未提交 Git。
+
+## 2026-09-20 开场水流改用纯蓝贴图材质
+
+**原因**
+用户要求移除开场水流自定义 Shader，减少 Luna 导出后的条纹与边缘渲染差异。
+
+**修改**
+- 新增 32×32 纯蓝 PNG，关闭压缩与 mipmap，WaterStream 材质改用 Unity URP 自带 Sprite-Unlit-Default。
+- 删除逐帧材质属性块、路径偏移和运行时颜色配置，白色顶点色直接显示贴图颜色。
+- LineRenderer 使用 Stretch、TransformZ 与世界单位旋转，关闭圆角和端帽，保留原路径及出水时序。
+- 保留旧 Shader 文件，因为现有 Luna 变体集合仍引用它；水流材质不再使用它。
+
+**主要文件**
+- `Assets/Scripts/Game/ShootBall.cs`
+- `Assets/prefabs/Water/WaterStream.mat`
+- `Assets/prefabs/Water/WaterStreamBlue.png` 及 `.meta`
+
+**Unity 编辑器操作**
+无需重新绑定，材质 GUID 保持不变。等待资源导入后重新运行并导出 Luna。
+
+**注意**
+C# 编译和差异检查通过，已检查贴图颜色及材质引用。未连接 Unity 编辑器、未重新导出 Luna，最终线宽效果仍需包内验证。未提交 Git。
+
 ## 2026-09-20 源管在跟随段出发后立即释放
 
 **原因**

@@ -16,7 +16,6 @@ public class ShootBall : MonoBehaviour
 
     [Header("Water Stream")]
     public Material streamMaterial;
-    public Color streamColor = new Color(0.15f, 0.7f, 1f, 1f);
     [Min(0.01f)] public float streamWidth = 0.2f;
     [Tooltip("源头连续出水的时间，结束后水尾继续沿路径流出。")]
     [Min(0.01f)] public float emissionDuration = 2.37f;
@@ -28,8 +27,6 @@ public class ShootBall : MonoBehaviour
     private LineRenderer stream;
     private Vector3[] sampledPath;
     private float[] pathDistances;
-    private MaterialPropertyBlock streamProperties;
-    private static readonly int PathOffset = Shader.PropertyToID("_PathOffset");
 
     private void Start()
     {
@@ -59,21 +56,21 @@ public class ShootBall : MonoBehaviour
         stream.enabled = false;
         stream.useWorldSpace = true;
         stream.sharedMaterial = streamMaterial;
-        stream.textureMode = LineTextureMode.Tile;
+        stream.textureMode = LineTextureMode.Stretch;
+        stream.alignment = LineAlignment.TransformZ;
         stream.widthCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
         stream.widthMultiplier = streamWidth;
         // Luna leaves a dynamically added LineRenderer's gradient uninitialized.
         Gradient gradient = new Gradient();
         gradient.SetKeys(
-            new[] { new GradientColorKey(streamColor, 0f), new GradientColorKey(streamColor, 1f) },
-            new[] { new GradientAlphaKey(streamColor.a, 0f), new GradientAlphaKey(streamColor.a, 1f) });
+            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+            new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) });
         stream.colorGradient = gradient;
         stream.sortingOrder = sortingOrder;
-        stream.numCapVertices = 4;
-        stream.numCornerVertices = 4;
+        stream.numCapVertices = 0;
+        stream.numCornerVertices = 0;
         stream.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         stream.receiveShadows = false;
-        streamProperties = new MaterialPropertyBlock();
 
         // 直接采样原 DOPath，避免另写曲线算法导致与 Path 节点的实际路线不同。
         Tween pathTween = streamObject.transform
@@ -84,6 +81,7 @@ public class ShootBall : MonoBehaviour
         pathTween.Kill();
         // Path samples are world positions; keep the renderer origin at world zero for Luna.
         streamObject.transform.position = Vector3.zero;
+        streamObject.transform.rotation = Quaternion.identity;
 
         pathDistances = new float[sampledPath.Length];
         for (int i = 1; i < sampledPath.Length; i++)
@@ -136,8 +134,6 @@ public class ShootBall : MonoBehaviour
             }
         }
         stream.SetPosition(index, SamplePath(head));
-        streamProperties.SetFloat(PathOffset, tail);
-        stream.SetPropertyBlock(streamProperties);
     }
 
     private Vector3 SamplePath(float distance)

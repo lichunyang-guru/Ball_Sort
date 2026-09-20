@@ -16999,7 +16999,7 @@
                     },
                     {
                         "name": "rotation#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "forward#set",
@@ -20615,7 +20615,7 @@
                     },
                     {
                         "name": "mixedBakeMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ambientIntensity#get",
@@ -33015,7 +33015,7 @@
                     },
                     {
                         "name": "GenerateByTransformAlignment",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GenerateByViewAlignment",
@@ -33055,11 +33055,11 @@
                     },
                     {
                         "name": "ApplyTransformAlignment",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "EvaluateSegmentsNormalsForTransformAlignment",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyViewAlignment",
@@ -33561,7 +33561,7 @@
                     },
                     {
                         "name": "alignment#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "widthCurve#get",
