@@ -1286,7 +1286,7 @@ MonoBehaviour:
   requiredCompletedTubeCount: 5
   introDropTubeCount: 5
   introDropDelay: 1.1
-  introDropSpawnHeight: -0.6
+  introDropSpawnHeight: -1.2
   introDropDuration: 0.15
   introDropStartInterval: 0.14
   introDropSameColumnInterval: 0.24
@@ -1297,12 +1297,12 @@ MonoBehaviour:
   selectionTopBallMouthOffset: -0.9
   selectionTweenDuration: 0.15
   selectionSortingBoost: 100
-  raiseDuration: 0.2
+  raiseDuration: 0.05
   transferHoverHeight: -0.8
   transferArcHeight: 0.7
-  travelDuration: 0.25
-  dropDuration: 0.3
-  followInterval: 0.05
+  travelDuration: 0.15
+  dropDuration: 0.2
+  followInterval: 0.04
   onPuzzleSolved:
     m_PersistentCalls:
       m_Calls: []

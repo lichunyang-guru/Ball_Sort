@@ -4,7 +4,7 @@ using UnityEngine;
 public class WaterTransferVisual : MonoBehaviour
 {
     private static readonly int WaterUpState = Animator.StringToHash("Base Layer.water-up");
-    private static readonly int WaterDownState = Animator.StringToHash("Base Layer.water-down");
+    private const string WaterDownState = "Base Layer.water-down";
     [SerializeField] private GameObject visualRoot;
     [SerializeField] private SpriteRenderer body;
     [SerializeField] private WaterBodyTopAnchor bodyTopAnchor;
@@ -16,36 +16,55 @@ public class WaterTransferVisual : MonoBehaviour
 
     private SpriteRenderer upRenderer;
     private SpriteRenderer downRenderer;
-    private float downClipDuration;
 
     private void Awake()
     {
         upRenderer = waterUp.GetComponent<SpriteRenderer>();
         downRenderer = waterDown.GetComponent<SpriteRenderer>();
-        downClipDuration = waterDown.runtimeAnimatorController.animationClips[0].length;
     }
 
     public void PlayUp()
     {
         RestoreBody();
         visualRoot.SetActive(false);
-        upRenderer.color = body.color;
+        upRenderer.color = GetWaterBallTint();
         SyncSorting();
         waterUp.gameObject.SetActive(true);
         waterUp.Play(WaterUpState, 0, 0f);
         waterUp.Update(0f);
     }
 
-    public void PlayDown(float duration)
+    public void PlayDown()
     {
         visualRoot.SetActive(false);
         waterUp.gameObject.SetActive(false);
-        downRenderer.color = body.color;
+        downRenderer.color = GetWaterBallTint();
         SyncSorting();
         waterDown.gameObject.SetActive(true);
-        waterDown.speed = downClipDuration / Mathf.Max(0.01f, duration);
-        waterDown.Play(WaterDownState, 0, 0f);
+        SetDownProgress(0f);
+    }
+
+    private Color GetWaterBallTint()
+    {
+        Color color = Color.Lerp(body.color, Color.white, 0.20f);
+        color.a = body.color.a;
+        return color;
+    }
+
+    public Tween CreateDownProgressTween(float duration)
+    {
+        // 与下落位移使用相同的曲线，让帧动画按已下落距离推进。
+        return DOVirtual.Float(0f, 1f, duration, SetDownProgress).SetEase(Ease.InQuad);
+    }
+
+    private void SetDownProgress(float progress)
+    {
+        // Luna 不注册完整状态路径的 Hash；string Play 会解析层名，并正确换算归一化进度。
+        // 暂时恢复速度，让 Update 走 apply 分支，再暂停自动播放以保持距离驱动。
+        waterDown.speed = 1f;
+        waterDown.Play(WaterDownState, 0, Mathf.Clamp01(progress));
         waterDown.Update(0f);
+        waterDown.speed = 0f;
     }
 
     public void HideVisuals()

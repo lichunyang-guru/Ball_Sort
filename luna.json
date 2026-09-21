@@ -8600,6 +8600,10 @@
             {
                 "name": "UnityEngine.WrapMode",
                 "excluded": false
+            },
+            {
+                "name": "ShootBall.StreamSegment",
+                "excluded": false
             }
         ],
         "unusedMethods": [
@@ -14429,7 +14433,7 @@
                     },
                     {
                         "name": "NextDouble",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -20877,7 +20881,7 @@
                     },
                     {
                         "name": "mainTexture#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "color#get",
@@ -20933,7 +20937,7 @@
                     },
                     {
                         "name": "$ctor1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "$ctor2",
@@ -21037,7 +21041,7 @@
                     },
                     {
                         "name": "SetTexture$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetTexture",
@@ -30260,6 +30264,10 @@
                     {
                         "name": "RunMovingColumn",
                         "excluded": false
+                    },
+                    {
+                        "name": "GetLevelWaterColors",
+                        "excluded": false
                     }
                 ]
             },
@@ -32207,7 +32215,7 @@
                     },
                     {
                         "name": "Play$4",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Play$1",
@@ -32590,6 +32598,18 @@
                     {
                         "name": "SamplePath",
                         "excluded": false
+                    },
+                    {
+                        "name": "PrepareSegments",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideStream",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
                     }
                 ]
             },
@@ -32645,7 +32665,7 @@
                     },
                     {
                         "name": "Range$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Range",
@@ -34019,6 +34039,18 @@
                     },
                     {
                         "name": "RestoreBody",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetWaterBallTint",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreateDownProgressTween",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetDownProgress",
                         "excluded": false
                     }
                 ]

@@ -251,11 +251,12 @@ public class BallView : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         if (waterTransferVisual != null)
         {
-            sequence.AppendCallback(() => waterTransferVisual.PlayDown(duration));
+            sequence.AppendCallback(waterTransferVisual.PlayDown);
         }
         sequence.Append(transform.DOMove(slotPosition, duration).SetEase(Ease.InQuad));
         if (waterTransferVisual != null)
         {
+            sequence.Join(waterTransferVisual.CreateDownProgressTween(duration));
             sequence.Append(waterTransferVisual.CreateRevealSequence());
         }
         else
@@ -530,7 +531,7 @@ public class BallView : MonoBehaviour
 
         if (waterTransferVisual != null)
         {
-            sequence.AppendCallback(() => waterTransferVisual.PlayDown(dropDuration));
+            sequence.AppendCallback(waterTransferVisual.PlayDown);
         }
         sequence.AppendCallback(() =>
         {
@@ -543,6 +544,7 @@ public class BallView : MonoBehaviour
         sequence.Append(dropTween);
         if (waterTransferVisual != null)
         {
+            sequence.Join(waterTransferVisual.CreateDownProgressTween(dropDuration));
             sequence.Append(waterTransferVisual.CreateRevealSequence());
         }
         else

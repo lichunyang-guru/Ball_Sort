@@ -288,6 +288,26 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public List<Color> GetLevelWaterColors()
+    {
+        List<Color> colors = new List<Color>();
+        if (ballVisualPalette == null) return colors;
+        foreach (TubeLevelEntry entry in levelEntries)
+        {
+            if (entry == null || entry.tubeView == null) continue;
+            foreach (WaterColumnEntry column in entry.columns)
+            {
+                if (column != null && column.length > 0
+                    && ballVisualPalette.TryGetVisual(column.color, out BallVisualPalette.BallVisualEntry visual)
+                    && !colors.Contains(visual.tint))
+                {
+                    colors.Add(visual.tint);
+                }
+            }
+        }
+        return colors;
+    }
+
     public void RestartLevel()
     {
         BuildBoard();

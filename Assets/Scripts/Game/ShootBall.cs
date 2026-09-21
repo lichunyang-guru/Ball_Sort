@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -24,7 +25,15 @@ public class ShootBall : MonoBehaviour
     public int sortingOrder = 50;
     public PathType pathType = PathType.CatmullRom;
 
-    private LineRenderer stream;
+    private sealed class StreamSegment
+    {
+        public LineRenderer renderer;
+        public float startTime;
+        public float endTime;
+    }
+
+    private readonly List<StreamSegment> segments = new List<StreamSegment>();
+    private Material coloredStreamMaterial;
     private Vector3[] sampledPath;
     private float[] pathDistances;
 
@@ -52,25 +61,6 @@ public class ShootBall : MonoBehaviour
         GameObject streamObject = new GameObject("ShootWaterStream");
         streamObject.transform.SetParent(transform, false);
         streamObject.transform.position = waypoints[0];
-        stream = streamObject.AddComponent<LineRenderer>();
-        stream.enabled = false;
-        stream.useWorldSpace = true;
-        stream.sharedMaterial = streamMaterial;
-        stream.textureMode = LineTextureMode.Stretch;
-        stream.alignment = LineAlignment.TransformZ;
-        stream.widthCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
-        stream.widthMultiplier = streamWidth;
-        // Luna leaves a dynamically added LineRenderer's gradient uninitialized.
-        Gradient gradient = new Gradient();
-        gradient.SetKeys(
-            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
-            new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) });
-        stream.colorGradient = gradient;
-        stream.sortingOrder = sortingOrder;
-        stream.numCapVertices = 0;
-        stream.numCornerVertices = 0;
-        stream.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        stream.receiveShadows = false;
 
         // 直接采样原 DOPath，避免另写曲线算法导致与 Path 节点的实际路线不同。
         Tween pathTween = streamObject.transform
@@ -89,6 +79,59 @@ public class ShootBall : MonoBehaviour
             pathDistances[i] = pathDistances[i - 1]
                 + Vector3.Distance(sampledPath[i - 1], sampledPath[i]);
         }
+        PrepareSegments(streamObject.transform);
+    }
+
+    private void PrepareSegments(Transform parent)
+    {
+        GameController controller = gameRoot != null
+            ? gameRoot.GetComponentInChildren<GameController>(true)
+            : null;
+        if (controller == null) controller = FindObjectOfType<GameController>();
+        List<Color> colors = controller != null ? controller.GetLevelWaterColors() : new List<Color>();
+        if (colors.Count == 0)
+        {
+            Debug.LogWarning("开场水流未找到当前关卡的水柱配色。", this);
+            return;
+        }
+
+        // 白色底图保留水柱原色，避免被原蓝色贴图二次染色。
+        coloredStreamMaterial = new Material(streamMaterial);
+        coloredStreamMaterial.mainTexture = Texture2D.whiteTexture;
+        float emitTime = Mathf.Max(0.01f, emissionDuration);
+        float travelTime = Mathf.Max(0.01f, moveDuration);
+        float start = 0f;
+        int previousColor = -1;
+        while (start < emitTime)
+        {
+            int colorIndex = Random.Range(0, colors.Count);
+            if (colors.Count > 1 && colorIndex == previousColor)
+                colorIndex = (colorIndex + Random.Range(1, colors.Count)) % colors.Count;
+            previousColor = colorIndex;
+            float end = Mathf.Min(emitTime, start + Random.Range(0.09f, 0.225f) * travelTime);
+            GameObject segmentObject = new GameObject("WaterSegment");
+            segmentObject.transform.SetParent(parent, false);
+            LineRenderer line = segmentObject.AddComponent<LineRenderer>();
+            line.enabled = false;
+            line.useWorldSpace = true;
+            line.sharedMaterial = coloredStreamMaterial;
+            line.textureMode = LineTextureMode.Stretch;
+            line.alignment = LineAlignment.TransformZ;
+            line.widthCurve = AnimationCurve.Linear(0f, 1f, 1f, 1f);
+            line.widthMultiplier = streamWidth;
+            Gradient gradient = new Gradient();
+            gradient.SetKeys(
+                new[] { new GradientColorKey(colors[colorIndex], 0f), new GradientColorKey(colors[colorIndex], 1f) },
+                new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 1f) });
+            line.colorGradient = gradient;
+            line.sortingOrder = sortingOrder;
+            line.numCapVertices = 8;
+            line.numCornerVertices = 0;
+            line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            line.receiveShadows = false;
+            segments.Add(new StreamSegment { renderer = line, startTime = start, endTime = end });
+            start = end;
+        }
     }
 
     private IEnumerator ShootRoutine()
@@ -99,19 +142,23 @@ public class ShootBall : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < emitTime + travelTime)
         {
-            UpdateStream(elapsed, travelTime, emitTime);
+            foreach (StreamSegment segment in segments)
+            {
+                UpdateStream(segment, elapsed, travelTime);
+            }
             yield return null;
             elapsed += Time.deltaTime;
         }
-        stream.enabled = false;
+        HideStream();
         PlayMoveShootExit();
     }
 
-    private void UpdateStream(float elapsed, float travelTime, float emitTime)
+    private void UpdateStream(StreamSegment segment, float elapsed, float travelTime)
     {
         float length = pathDistances[pathDistances.Length - 1];
-        float head = Mathf.Clamp01(elapsed / travelTime) * length;
-        float tail = Mathf.Clamp01((elapsed - emitTime) / travelTime) * length;
+        LineRenderer stream = segment.renderer;
+        float head = Mathf.Clamp01((elapsed - segment.startTime) / travelTime) * length;
+        float tail = Mathf.Clamp01((elapsed - segment.endTime) / travelTime) * length;
         stream.enabled = head - tail > 0.001f;
         if (!stream.enabled)
         {
@@ -207,9 +254,19 @@ public class ShootBall : MonoBehaviour
     private void OnDisable()
     {
         StopAllCoroutines();
-        if (stream != null)
+        HideStream();
+    }
+
+    private void HideStream()
+    {
+        foreach (StreamSegment segment in segments)
         {
-            stream.enabled = false;
+            if (segment.renderer != null) segment.renderer.enabled = false;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (coloredStreamMaterial != null) Destroy(coloredStreamMaterial);
     }
 }
