@@ -16,11 +16,23 @@ public class WaterTransferVisual : MonoBehaviour
 
     private SpriteRenderer upRenderer;
     private SpriteRenderer downRenderer;
+    private Material dropMaterial;
+    private Material originalUpMaterial;
+    private Material originalDownMaterial;
 
     private void Awake()
     {
         upRenderer = waterUp.GetComponent<SpriteRenderer>();
         downRenderer = waterDown.GetComponent<SpriteRenderer>();
+        // 复用水柱已经引用的 Shader，避免运行时查找的 Shader 在导出时被裁剪。
+        originalUpMaterial = upRenderer.sharedMaterial;
+        originalDownMaterial = downRenderer.sharedMaterial;
+        dropMaterial = new Material(body.sharedMaterial);
+        dropMaterial.name = "WaterDropColorMatch";
+        dropMaterial.SetFloat("_DropColorMatch", 1f);
+        dropMaterial.SetFloat("_RevealProgress", 1f);
+        upRenderer.sharedMaterial = dropMaterial;
+        downRenderer.sharedMaterial = dropMaterial;
     }
 
     public void PlayUp()
@@ -46,9 +58,7 @@ public class WaterTransferVisual : MonoBehaviour
 
     private Color GetWaterBallTint()
     {
-        Color color = Color.Lerp(body.color, Color.white, 0.20f);
-        color.a = body.color.a;
-        return color;
+        return body.color;
     }
 
     public Tween CreateDownProgressTween(float duration)
@@ -107,6 +117,13 @@ public class WaterTransferVisual : MonoBehaviour
     private void SetRevealProgress(float progress)
     {
         bodyTopAnchor.SetRevealProgress(progress);
+    }
+
+    private void OnDestroy()
+    {
+        if (upRenderer != null) upRenderer.sharedMaterial = originalUpMaterial;
+        if (downRenderer != null) downRenderer.sharedMaterial = originalDownMaterial;
+        if (dropMaterial != null) Destroy(dropMaterial);
     }
 
     public void RestoreBody()

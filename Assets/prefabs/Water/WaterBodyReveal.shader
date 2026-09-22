@@ -4,6 +4,7 @@ Shader "BallSort/WaterBodyReveal"
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Tint", Color) = (1,1,1,1)
+        [HideInInspector] _DropColorMatch ("Match Drop To Water Color", Float) = 0
         [HideInInspector] _RendererColor ("Renderer Color", Color) = (1,1,1,1)
         [HideInInspector] _Flip ("Flip", Vector) = (1,1,1,1)
         [PerRendererData] _AlphaTex ("External Alpha", 2D) = "white" {}
@@ -26,6 +27,7 @@ Shader "BallSort/WaterBodyReveal"
             #pragma multi_compile_instancing
             #pragma multi_compile _ ETC1_EXTERNAL_ALPHA
             #include "UnitySprites.cginc"
+            float _DropColorMatch;
             float _RevealProgress;
             float4 _RevealPlane;
             struct RevealVaryings
@@ -53,7 +55,17 @@ Shader "BallSort/WaterBodyReveal"
                 clip(_RevealProgress - 0.00001);
                 if (_RevealProgress < 1)
                     clip(_RevealPlane.w - dot(_RevealPlane.xyz, input.worldPosition));
-                fixed4 color = SampleSpriteTexture(input.texcoord) * input.color;
+                fixed4 texel = SampleSpriteTexture(input.texcoord);
+                fixed4 color = texel * input.color;
+                if (_DropColorMatch > 0.5)
+                {
+                    // 灰底只提供轻微明暗，水滴主体保持水柱的色相和亮度。
+                    float gray = dot(texel.rgb, float3(0.299, 0.587, 0.114));
+                    float shade = 0.82 + gray * 0.28;
+                    color.rgb = saturate(input.color.rgb * shade);
+                    float highlight = smoothstep(0.8, 1.0, gray) * 0.18;
+                    color.rgb = lerp(color.rgb, float3(1, 1, 1), highlight);
+                }
                 color.rgb *= color.a;
                 return color;
             }

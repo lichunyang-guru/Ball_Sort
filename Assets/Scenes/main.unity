@@ -1285,7 +1285,7 @@ MonoBehaviour:
     columns: []
   requiredCompletedTubeCount: 5
   introDropTubeCount: 5
-  introDropDelay: 1.1
+  introDropDelay: 1.25
   introDropSpawnHeight: -1.2
   introDropDuration: 0.15
   introDropStartInterval: 0.14
@@ -1297,7 +1297,7 @@ MonoBehaviour:
   selectionTopBallMouthOffset: -0.9
   selectionTweenDuration: 0.15
   selectionSortingBoost: 100
-  raiseDuration: 0.05
+  raiseDuration: 0.023
   transferHoverHeight: -0.8
   transferArcHeight: 0.7
   travelDuration: 0.15
@@ -3350,11 +3350,21 @@ MonoBehaviour:
   gameRoot: {fileID: 291055173}
   guidePanel: {fileID: 8445018085462804316}
   streamMaterial: {fileID: 2100000, guid: 17af35473e1042aa8d92992f47d3e5f9, type: 2}
-  streamWidth: 0.2
-  emissionDuration: 2.2
-  moveDuration: 0.65
+  streamWidth: 0.25
+  emissionDuration: 1.8
+  moveDuration: 1.2
   sortingOrder: 50
   pathType: 1
+  colorPatchLength: 0.3
+  colorScrollSpeed: 0.7
+  outletPositions:
+  - {x: 0.083, y: 0.045}
+  - {x: 0.25, y: 0.045}
+  - {x: 0.42146, y: 0.045}
+  - {x: 0.58927, y: 0.045}
+  - {x: 0.75805, y: 0.045}
+  - {x: 0.926, y: 0.045}
+  outletExtension: 0.12
 --- !u!1 &899138550
 GameObject:
   m_ObjectHideFlags: 0
