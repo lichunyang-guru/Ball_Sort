@@ -30,7 +30,6 @@ public class GameConfig : MonoSingleton<GameConfig>
     float curIdleTime = 0f;
     bool isStartIdle = false;
     bool isPlayBGM = false;
-    bool hasReceivedScreenInput = false;
 
     void Update()
     {
@@ -101,12 +100,7 @@ public class GameConfig : MonoSingleton<GameConfig>
             return;
         }
 
-        if (Input.GetMouseButtonDown(0) || Input.touchCount > 0)
-        {
-            hasReceivedScreenInput = true;
-        }
-
-        if (hasReceivedScreenInput)
+        if (AudioMgr.Instance != null && AudioMgr.Instance.HasReceivedScreenInput)
         {
             PlayBGM();
         }

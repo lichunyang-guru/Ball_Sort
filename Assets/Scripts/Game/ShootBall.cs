@@ -20,17 +20,19 @@ public class ShootBall : MonoBehaviour
     [Min(0.01f)] public float streamWidth = 0.2f;
     [Tooltip("源头连续出水的时间，结束后水尾继续沿路径流出。")]
     [Min(0.01f)] public float emissionDuration = 2.37f;
-    [Tooltip("水头或水尾走完整条原路径的时间。")]
+    [Tooltip("水流走完整条原路径的时间，彩条、水头和水尾使用同一速度；越小流得越快。")]
     [Min(0.01f)] public float moveDuration = 0.7f;
+    [LunaPlaygroundField("水流速度倍率（1为原速，越大越快）", 1, "水流外观参数")]
+    [Tooltip("以 Move Duration 为基础调整速度。1 为原速，2 为两倍速，0.5 为半速；彩条、水头、水尾和出水口同步。")]
+    [Min(0.01f)] public float flowSpeedMultiplier = 1f;
     public int sortingOrder = 50;
     public PathType pathType = PathType.CatmullRom;
 
     [Header("彩条外观")]
     [InspectorName("颜色宽度")]
+    [LunaPlaygroundField("彩带宽度（越大越宽）", 0, "水流外观参数")]
     [Tooltip("每条颜色沿水流方向的长度。越大颜色越宽；建议 0.4～0.8，运行中调整也会立即生效。")]
     [Min(0.05f)] public float colorBandWidth = 0.55f;
-    [Tooltip("斜向彩条的滚动速度，与水头填充速度分开。")]
-    [Min(0f)] public float colorScrollSpeed = 0.45f;
     [Tooltip("用于覆盖不规则轨道的水带宽度，最终按轨道透明轮廓裁切。")]
     [Min(0.01f)] public float trackCoverageWidth = 0.55f;
     private bool clipToTrack;
@@ -133,7 +135,7 @@ public class ShootBall : MonoBehaviour
 
         PrepareMaterial();
         StreamRibbon main = CreateRibbon("Main", sampledPath, 0f);
-        flowSpeed = main.Length / Mathf.Max(0.01f, moveDuration);
+        flowSpeed = main.Length / Mathf.Max(0.01f, moveDuration) * Mathf.Max(0.01f, flowSpeedMultiplier);
         PrepareOutlets(main);
     }
 
@@ -332,8 +334,9 @@ public class ShootBall : MonoBehaviour
 
     private void UpdateStream(StreamRibbon stream, float elapsed, float emitTime)
     {
-        float head = Mathf.Clamp(elapsed * flowSpeed - stream.sourceDistance, 0f, stream.Length);
-        float tail = Mathf.Clamp((elapsed - emitTime) * flowSpeed - stream.sourceDistance, 0f, stream.Length);
+        float travelledDistance = elapsed * flowSpeed;
+        float head = Mathf.Clamp(travelledDistance - stream.sourceDistance, 0f, stream.Length);
+        float tail = Mathf.Clamp(travelledDistance - emitTime * flowSpeed - stream.sourceDistance, 0f, stream.Length);
         stream.renderer.enabled = head - tail > 0.001f;
         if (!stream.renderer.enabled) return;
 
@@ -362,8 +365,8 @@ public class ShootBall : MonoBehaviour
             int vertex = i * 2;
             stream.vertices[vertex] = streamRoot.transform.InverseTransformPoint(center - normal * halfWidth);
             stream.vertices[vertex + 1] = streamRoot.transform.InverseTransformPoint(center + normal * halfWidth);
-            // 使用绝对行程，水头/水尾伸缩时纹理不拉伸，支管与主流共享相位。
-            float u = (stream.sourceDistance + distance - elapsed * Mathf.Max(0f, colorScrollSpeed))
+            // 彩条与水头/水尾共用行程，颜色随水一起移动，支管与主流共享相位。
+            float u = (stream.sourceDistance + distance - travelledDistance)
                 / (Mathf.Max(0.05f, colorBandWidth) * stripeCount);
             stream.uv[vertex] = new Vector2(u, 0f);
             stream.uv[vertex + 1] = new Vector2(u, 1f);

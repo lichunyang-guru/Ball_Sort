@@ -3355,8 +3355,7 @@ MonoBehaviour:
   moveDuration: 1.2
   sortingOrder: 50
   pathType: 1
-  colorBandWidth: 0.55
-  colorScrollSpeed: 1
+  colorBandWidth: 2
   trackCoverageWidth: 0.55
   outletPositions:
   - {x: 0.083, y: 0.045}

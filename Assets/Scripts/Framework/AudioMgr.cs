@@ -48,6 +48,41 @@ public class AudioMgr : MonoSingleton<AudioMgr>
 
     // 背景音乐专用的AudioSource
     private AudioSource bgmSource;
+    private bool hasReceivedScreenInput;
+
+    public bool HasReceivedScreenInput
+    {
+        get
+        {
+            CaptureScreenInput();
+            return hasReceivedScreenInput;
+        }
+    }
+
+    private void Update()
+    {
+        CaptureScreenInput();
+    }
+
+    private void CaptureScreenInput()
+    {
+        if (hasReceivedScreenInput) return;
+        if (Input.GetMouseButtonDown(0))
+        {
+            hasReceivedScreenInput = true;
+            return;
+        }
+
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+            TouchPhase phase = Input.GetTouch(i).phase;
+            if (phase != TouchPhase.Ended && phase != TouchPhase.Canceled)
+            {
+                hasReceivedScreenInput = true;
+                return;
+            }
+        }
+    }
 
     /// <summary>
     /// BGM音量属性
@@ -121,6 +156,9 @@ public class AudioMgr : MonoSingleton<AudioMgr>
     /// <param name="loop">是否循环</param>
     public bool Play(string audioName, AudioType audioType = AudioType.Effect, bool loop = false)
     {
+        // 所有声音都等首次触屏后播放；在调用处同步检查，避免首触帧的执行顺序影响音效。
+        if (!HasReceivedScreenInput) return false;
+
         // 查找音频文件
         AudioClip clip = FindAudioClip(audioName);
         if (clip == null)

@@ -26948,6 +26948,18 @@
                     {
                         "name": "PrewarmEffectAudioSources",
                         "excluded": false
+                    },
+                    {
+                        "name": "HasReceivedScreenInput#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CaptureScreenInput",
+                        "excluded": false
                     }
                 ]
             },
