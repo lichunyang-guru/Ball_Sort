@@ -154,7 +154,13 @@ public class GameController : MonoBehaviour
     private SelectionState currentSelection;
     private bool puzzleSolvedInvoked;
     private bool introDropInProgress;
+    private bool boardEntryInProgress;
     private int completedTubeAnalyticsCount;
+
+    public void SetBoardEntryInProgress(bool inProgress)
+    {
+        boardEntryInProgress = inProgress;
+    }
 
     private void Start()
     {
@@ -163,7 +169,7 @@ public class GameController : MonoBehaviour
 
     private void Update()
     {
-        if (gamePhase == GamePhase.Win || introDropInProgress)
+        if (gamePhase == GamePhase.Win || introDropInProgress || boardEntryInProgress)
         {
             return;
         }

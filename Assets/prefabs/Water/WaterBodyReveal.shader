@@ -3,6 +3,11 @@ Shader "BallSort/WaterBodyReveal"
     Properties
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+        [HideInInspector] _TrackMinimumV ("Main Track Lower Edge", Float) = 0
+        [HideInInspector] _TrackMaskEnabled ("Track Mask Enabled", Float) = 0
+        [HideInInspector] _TrackMask ("Track Mask", 2D) = "white" {}
+        [HideInInspector] _TrackWorldToU ("Track World To U", Vector) = (1,0,0,0)
+        [HideInInspector] _TrackWorldToV ("Track World To V", Vector) = (0,1,0,0)
         _Color ("Tint", Color) = (1,1,1,1)
         [HideInInspector] _DropColorMatch ("Match Drop To Water Color", Float) = 0
         [HideInInspector] _RendererColor ("Renderer Color", Color) = (1,1,1,1)
@@ -27,6 +32,11 @@ Shader "BallSort/WaterBodyReveal"
             #pragma multi_compile_instancing
             #pragma multi_compile _ ETC1_EXTERNAL_ALPHA
             #include "UnitySprites.cginc"
+            float _TrackMinimumV;
+            float _TrackMaskEnabled;
+            sampler2D _TrackMask;
+            float4 _TrackWorldToU;
+            float4 _TrackWorldToV;
             float _DropColorMatch;
             float _RevealProgress;
             float4 _RevealPlane;
@@ -65,6 +75,15 @@ Shader "BallSort/WaterBodyReveal"
                     color.rgb = saturate(input.color.rgb * shade);
                     float highlight = smoothstep(0.8, 1.0, gray) * 0.18;
                     color.rgb = lerp(color.rgb, float3(1, 1, 1), highlight);
+                }
+                if (_TrackMaskEnabled > 0.5)
+                {
+                    float4 world = float4(input.worldPosition, 1);
+                    float2 maskUV = float2(dot(world, _TrackWorldToU), dot(world, _TrackWorldToV));
+                    clip(maskUV);
+                    clip(maskUV.y - _TrackMinimumV);
+                    clip(1.0 - maskUV);
+                    color.a *= tex2D(_TrackMask, maskUV).a;
                 }
                 color.rgb *= color.a;
                 return color;

@@ -3355,15 +3355,15 @@ MonoBehaviour:
   moveDuration: 1.2
   sortingOrder: 50
   pathType: 1
-  colorPatchLength: 0.3
-  colorScrollSpeed: 0.7
+  colorBandWidth: 0.55
+  colorScrollSpeed: 1
+  trackCoverageWidth: 0.55
   outletPositions:
   - {x: 0.083, y: 0.045}
   - {x: 0.25, y: 0.045}
   - {x: 0.42146, y: 0.045}
   - {x: 0.58927, y: 0.045}
   - {x: 0.75805, y: 0.045}
-  - {x: 0.926, y: 0.045}
   outletExtension: 0.12
 --- !u!1 &899138550
 GameObject:

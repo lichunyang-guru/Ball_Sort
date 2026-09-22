@@ -25,11 +25,16 @@ public class ShootBall : MonoBehaviour
     public int sortingOrder = 50;
     public PathType pathType = PathType.CatmullRom;
 
-    [Tooltip("单个彩色色块沿水流方向的平均长度（世界单位）。")]
-    [Min(0.05f)] public float colorPatchLength = 0.3f;
-    [Tooltip("色块纹理的滚动速度，与水头填充速度分开，保证流动时仍能看清颜色。")]
+    [Header("彩条外观")]
+    [InspectorName("颜色宽度")]
+    [Tooltip("每条颜色沿水流方向的长度。越大颜色越宽；建议 0.4～0.8，运行中调整也会立即生效。")]
+    [Min(0.05f)] public float colorBandWidth = 0.55f;
+    [Tooltip("斜向彩条的滚动速度，与水头填充速度分开。")]
     [Min(0f)] public float colorScrollSpeed = 0.45f;
-    private const int ColorPatchColumns = 24;
+    [Tooltip("用于覆盖不规则轨道的水带宽度，最终按轨道透明轮廓裁切。")]
+    [Min(0.01f)] public float trackCoverageWidth = 0.55f;
+    private bool clipToTrack;
+    private int stripeCount;
     [Header("Six Outlets")]
     [Tooltip("出水口相对于 PathBk 图片的归一化坐标（左下角为 0,0）。")]
     public Vector2[] outletPositions =
@@ -47,6 +52,7 @@ public class ShootBall : MonoBehaviour
         public MeshRenderer renderer;
         public Vector3[] path;
         public float[] distances;
+        public Vector3[] tangents;
         public Vector3[] vertices;
         public Vector2[] uv;
         public float sourceDistance;
@@ -55,14 +61,27 @@ public class ShootBall : MonoBehaviour
 
     private readonly List<StreamRibbon> streams = new List<StreamRibbon>();
     private Material coloredStreamMaterial;
+    private Material mainStreamMaterial;
     private Texture2D coloredStreamTexture;
     private GameObject streamRoot;
     private float flowSpeed;
+    private GameController boardController;
 
-    // 已保存的场景会覆盖字段初始化值。只迁移旧版三个错误的默认坐标，保留自定义位置。
-    private void CorrectLegacyOutletPositions()
+    private void Awake()
     {
-        if (outletPositions == null || outletPositions.Length != 6) return;
+        boardController = gameRoot != null
+            ? gameRoot.GetComponentInChildren<GameController>(true) : null;
+        if (boardController == null) boardController = FindObjectOfType<GameController>();
+
+        // 入场前就拦截点击，避免试管尚未就位时被选中。
+        if (boardController != null && gameRoot != null)
+            boardController.SetBoardEntryInProgress(true);
+    }
+
+    // 已保存的场景会覆盖字段初始化值；迁移旧管口坐标。
+    private void CorrectLegacyVisualSettings()
+    {
+        if (outletPositions == null || (outletPositions.Length != 5 && outletPositions.Length != 6)) return;
         float[] oldX = { 0.414f, 0.575f, 0.739f };
         float[] correctedX = { 0.42146f, 0.58927f, 0.75805f };
         for (int i = 0; i < oldX.Length; i++)
@@ -71,19 +90,21 @@ public class ShootBall : MonoBehaviour
             if (Mathf.Approximately(position.x, oldX[i]) && Mathf.Approximately(position.y, 0.045f))
                 outletPositions[i + 2] = new Vector2(correctedX[i], position.y);
         }
+
     }
 
     private void OnValidate()
     {
-        CorrectLegacyOutletPositions();
+        CorrectLegacyVisualSettings();
     }
 
     private void Start()
     {
-        CorrectLegacyOutletPositions();
+        CorrectLegacyVisualSettings();
         if (pathRoot == null || pathRoot.childCount < 2 || streamMaterial == null)
         {
             Debug.LogWarning("ShootRoot 需要至少两个路径节点和 Stream Material。", this);
+            PlayGameRootEnter();
             return;
         }
 
@@ -125,48 +146,18 @@ public class ShootBall : MonoBehaviour
         if (colors.Count == 0)
             colors.AddRange(new[] { Color.cyan, Color.blue, Color.magenta, Color.red, Color.yellow, Color.green });
 
-        // 二维错位色块拼接；每个横截面可见多种颜色，避免整段单色和纵向丝带。
-        // 环形距离保证循环无接缝；独立随机源不影响关卡的随机序列。
-        const int columns = ColorPatchColumns;
-        const int rows = 3;
-        var random = new System.Random(7319);
-        Vector2[] centers = new Vector2[columns * rows];
-        Color[] patchColors = new Color[centers.Length];
-        int[] colorIndices = new int[centers.Length];
-        int[] colorUsage = new int[colors.Count];
-        for (int row = 0; row < rows; row++)
+        // 整组配色循环四次，首尾颜色无缝衔接。
+        stripeCount = colors.Count * 4;
+        Color[] stripeColors = new Color[colors.Count];
+        for (int i = 0; i < colors.Count; i++)
         {
-            for (int column = 0; column < columns; column++)
-            {
-                int patch = row * columns + column;
-                centers[patch] = new Vector2(column + 0.1f + (float)random.NextDouble() * 0.8f,
-                    row + 0.1f + (float)random.NextDouble() * 0.8f);
-                // 优先使用较少出现的颜色，并避开左侧、上方和循环接缝的同色邻居。
-                int selected = random.Next(colors.Count);
-                int bestScore = int.MaxValue;
-                for (int candidate = 0; candidate < colors.Count; candidate++)
-                {
-                    int index = (selected + candidate) % colors.Count;
-                    int score = colorUsage[index];
-                    if (column > 0 && index == colorIndices[patch - 1]) score += 100;
-                    if (row > 0 && index == colorIndices[patch - columns]) score += 100;
-                    if (column == columns - 1 && index == colorIndices[row * columns]) score += 100;
-                    if (row == rows - 1 && index == colorIndices[column]) score += 100;
-                    if (score >= bestScore) continue;
-                    bestScore = score;
-                    colorIndices[patch] = index;
-                }
-                colorUsage[colorIndices[patch]]++;
-                Color baseColor = colors[colorIndices[patch]];
-                Color.RGBToHSV(baseColor, out float hue, out float saturation, out float value);
-                patchColors[patch] = Color.HSVToRGB(hue, Mathf.Max(0.8f, saturation), Mathf.Max(0.95f, value));
-            }
+            Color.RGBToHSV(colors[i], out float hue, out float saturation, out float value);
+            stripeColors[i] = Color.HSVToRGB(hue, Mathf.Max(0.8f, saturation), Mathf.Max(0.95f, value));
         }
-
-        const int width = 512;
-        const int height = 64;
+        const int width = 1024;
+        const int height = 128;
         coloredStreamTexture = new Texture2D(width, height, TextureFormat.RGBA32, false);
-        coloredStreamTexture.name = "BlendedColorPatchWater";
+        coloredStreamTexture.name = "DiagonalCandyWater";
         coloredStreamTexture.wrapMode = TextureWrapMode.Repeat;
         coloredStreamTexture.filterMode = FilterMode.Bilinear;
         Color[] pixels = new Color[width * height];
@@ -176,38 +167,31 @@ public class ShootBall : MonoBehaviour
             for (int x = 0; x < width; x++)
             {
                 float u = (float)x / width;
-                float first = float.MaxValue, second = float.MaxValue, third = float.MaxValue;
-                int firstIndex = 0, secondIndex = 0, thirdIndex = 0;
-                for (int patch = 0; patch < centers.Length; patch++)
+                // 横跨水流宽度错开约一条彩条，形成糖杖式斜纹。
+                float phase = Mathf.Repeat(u * stripeCount - v * 0.85f, stripeCount);
+                int stripe = Mathf.FloorToInt(phase);
+                float withinStripe = phase - stripe;
+                Color color = stripeColors[stripe % stripeColors.Length];
+                // 在接缝两侧各 10% 的范围直接混合邻色，不添加白色分隔。
+                const float transition = 0.10f;
+                if (withinStripe < transition)
                 {
-                    float dx = Mathf.Abs(u * columns - centers[patch].x);
-                    float dy = Mathf.Abs(v * rows - centers[patch].y);
-                    dx = Mathf.Min(dx, columns - dx);
-                    dy = Mathf.Min(dy, rows - dy);
-                    float distance = dx * dx + dy * dy;
-                    if (distance < first)
-                    {
-                        third = second; thirdIndex = secondIndex;
-                        second = first; secondIndex = firstIndex;
-                        first = distance; firstIndex = patch;
-                    }
-                    else if (distance < second)
-                    {
-                        third = second; thirdIndex = secondIndex;
-                        second = distance; secondIndex = patch;
-                    }
-                    else if (distance < third)
-                    {
-                        third = distance; thirdIndex = patch;
-                    }
+                    Color previous = stripeColors[(stripe + stripeColors.Length - 1) % stripeColors.Length];
+                    color = Color.Lerp(previous, color,
+                        Mathf.SmoothStep(0f, 1f, (withinStripe + transition) / (2f * transition)));
                 }
-                // 保留完整色块，只在很窄的交界处抗锯齿过渡，不做大范围模糊混色。
-                float secondWeight = Mathf.Exp((first - second) * 24f);
-                float thirdWeight = Mathf.Exp((first - third) * 24f);
-                Color color = (patchColors[firstIndex] + patchColors[secondIndex] * secondWeight
-                    + patchColors[thirdIndex] * thirdWeight) / (1f + secondWeight + thirdWeight);
-                color *= 0.97f + 0.03f * Mathf.Sin(v * Mathf.PI);
-                color.a = Mathf.SmoothStep(0f, 1f, Mathf.Min(v, 1f - v) / 0.08f);
+                else if (withinStripe > 1f - transition)
+                {
+                    Color next = stripeColors[(stripe + 1) % stripeColors.Length];
+                    color = Color.Lerp(color, next,
+                        Mathf.SmoothStep(0f, 1f, (withinStripe - (1f - transition)) / (2f * transition)));
+                }
+                // 轻微圆柱明暗和柔和反光，避免彩条像平面胶带。
+                float roundness = Mathf.Sin(v * Mathf.PI);
+                color *= 0.78f + 0.22f * roundness;
+                float highlight = Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Abs(v - 0.35f) / 0.18f), 3f) * 0.18f;
+                color = Color.Lerp(color, Color.white, highlight);
+                color.a = Mathf.SmoothStep(0f, 1f, Mathf.Min(v, 1f - v) / 0.06f);
                 pixels[y * width + x] = color;
             }
         }
@@ -216,21 +200,53 @@ public class ShootBall : MonoBehaviour
         coloredStreamMaterial = new Material(streamMaterial);
         coloredStreamMaterial.mainTexture = coloredStreamTexture;
         coloredStreamMaterial.color = Color.white;
+        ConfigureTrackMask();
     }
 
-    private StreamRibbon CreateRibbon(string name, Vector3[] points, float sourceDistance)
+    private void ConfigureTrackMask()
+    {
+        SpriteRenderer track = pathRoot.parent != null ? pathRoot.parent.GetComponent<SpriteRenderer>() : null;
+        Shader shader = Shader.Find("BallSort/WaterBodyReveal");
+        if (track == null || track.sprite == null || shader == null) return;
+        // 此 Shader 已由水柱材质引用。复用其普通贴图采样通道，默认不影响水柱/水滴。
+        coloredStreamMaterial.shader = shader;
+        coloredStreamMaterial.SetFloat("_RevealProgress", 1f);
+        coloredStreamMaterial.SetFloat("_TrackMaskEnabled", 1f);
+        coloredStreamMaterial.SetTexture("_TrackMask", track.sprite.texture);
+        Rect rect = track.sprite.textureRect;
+        Bounds bounds = track.sprite.bounds;
+        Matrix4x4 inverse = track.transform.worldToLocalMatrix;
+        float scaleU = rect.width / track.sprite.texture.width / bounds.size.x;
+        float scaleV = rect.height / track.sprite.texture.height / bounds.size.y;
+        Vector4 u = inverse.GetRow(0) * scaleU;
+        Vector4 v = inverse.GetRow(1) * scaleV;
+        u.w += rect.x / track.sprite.texture.width - bounds.min.x * scaleU;
+        v.w += rect.y / track.sprite.texture.height - bounds.min.y * scaleV;
+        coloredStreamMaterial.SetVector("_TrackWorldToU", u);
+        coloredStreamMaterial.SetVector("_TrackWorldToV", v);
+        // 横向主管下缘约位于原图 y=650/730，不能让加宽的主管伸进支管形成短截。
+        // 只裁主管；真正的出水口继续沿用完整轨道遮罩。
+        mainStreamMaterial = new Material(coloredStreamMaterial);
+        mainStreamMaterial.SetFloat("_TrackMinimumV", (rect.y + rect.height * 0.11f) / track.sprite.texture.height);
+        clipToTrack = true;
+    }
+
+    private StreamRibbon CreateRibbon(string name, Vector3[] points, float sourceDistance, bool isOutlet = false)
     {
         GameObject obj = new GameObject(name);
         obj.transform.SetParent(streamRoot.transform, false);
         StreamRibbon ribbon = new StreamRibbon
         {
-            path = points, distances = new float[points.Length], sourceDistance = sourceDistance,
+            path = points, distances = new float[points.Length], tangents = new Vector3[points.Length], sourceDistance = sourceDistance,
             vertices = new Vector3[points.Length * 2], uv = new Vector2[points.Length * 2],
             mesh = new Mesh { name = name + "WaterMesh" },
             renderer = obj.AddComponent<MeshRenderer>()
         };
         for (int i = 1; i < points.Length; i++)
             ribbon.distances[i] = ribbon.distances[i - 1] + Vector3.Distance(points[i - 1], points[i]);
+        for (int i = 0; i < points.Length; i++)
+            ribbon.tangents[i] = (points[Mathf.Min(points.Length - 1, i + 1)]
+                - points[Mathf.Max(0, i - 1)]).normalized;
         Color[] colors = new Color[ribbon.vertices.Length];
         for (int i = 0; i < colors.Length; i++) colors[i] = Color.white;
         int[] triangles = new int[(points.Length - 1) * 6];
@@ -245,8 +261,9 @@ public class ShootBall : MonoBehaviour
         ribbon.mesh.uv = ribbon.uv;
         ribbon.mesh.triangles = triangles;
         obj.AddComponent<MeshFilter>().sharedMesh = ribbon.mesh;
-        ribbon.renderer.sharedMaterial = coloredStreamMaterial;
-        ribbon.renderer.sortingOrder = sortingOrder;
+        ribbon.renderer.sharedMaterial = !isOutlet && mainStreamMaterial != null ? mainStreamMaterial : coloredStreamMaterial;
+        // 出水口在主水流下层，接头重叠部分由主水流遮挡。
+        ribbon.renderer.sortingOrder = isOutlet ? sortingOrder - 1 : sortingOrder;
         ribbon.renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         ribbon.renderer.receiveShadows = false;
         ribbon.renderer.enabled = false;
@@ -291,7 +308,7 @@ public class ShootBall : MonoBehaviour
             Vector3[] points = new Vector3[20];
             for (int i = 0; i < points.Length; i++)
                 points[i] = Vector3.Lerp(junction, end, (float)i / (points.Length - 1));
-            CreateRibbon("Outlet" + streams.Count, points, distance);
+            CreateRibbon("Outlet" + streams.Count, points, distance, true);
         }
     }
 
@@ -321,15 +338,21 @@ public class ShootBall : MonoBehaviour
         if (!stream.renderer.enabled) return;
 
         int pathIndex = 1;
-        float radius = Mathf.Max(0.001f, streamWidth * 0.5f);
+        float radius = Mathf.Max(0.001f, (clipToTrack ? Mathf.Max(streamWidth, trackCoverageWidth) : streamWidth) * 0.5f);
+        // 已充满的首尾延伸半径，让圆头覆盖轨道端帽，超出轮廓的部分由遮罩裁掉。
+        if (clipToTrack)
+        {
+            if (tail <= 0f) tail = -radius;
+            if (head >= stream.Length) head = stream.Length + radius;
+        }
         for (int i = 0; i < stream.path.Length; i++)
         {
             float distance = Mathf.Lerp(tail, head, (float)i / (stream.path.Length - 1));
             while (pathIndex < stream.path.Length - 1 && stream.distances[pathIndex] < distance) pathIndex++;
             float segmentLength = stream.distances[pathIndex] - stream.distances[pathIndex - 1];
             float t = segmentLength > 0f ? (distance - stream.distances[pathIndex - 1]) / segmentLength : 0f;
-            Vector3 center = Vector3.Lerp(stream.path[pathIndex - 1], stream.path[pathIndex], t);
-            Vector3 tangent = (stream.path[pathIndex] - stream.path[pathIndex - 1]).normalized;
+            Vector3 center = Vector3.LerpUnclamped(stream.path[pathIndex - 1], stream.path[pathIndex], t);
+            Vector3 tangent = Vector3.Lerp(stream.tangents[pathIndex - 1], stream.tangents[pathIndex], Mathf.Clamp01(t)).normalized;
             Vector3 normal = new Vector3(-tangent.y, tangent.x, 0f);
             float edge = Mathf.Min(distance - tail, head - distance);
             // 支管连接处保持全宽，水头和离开源头的水尾采用圆润收口。
@@ -341,7 +364,7 @@ public class ShootBall : MonoBehaviour
             stream.vertices[vertex + 1] = streamRoot.transform.InverseTransformPoint(center + normal * halfWidth);
             // 使用绝对行程，水头/水尾伸缩时纹理不拉伸，支管与主流共享相位。
             float u = (stream.sourceDistance + distance - elapsed * Mathf.Max(0f, colorScrollSpeed))
-                / (Mathf.Max(0.05f, colorPatchLength) * ColorPatchColumns);
+                / (Mathf.Max(0.05f, colorBandWidth) * stripeCount);
             stream.uv[vertex] = new Vector2(u, 0f);
             stream.uv[vertex + 1] = new Vector2(u, 1f);
         }
@@ -370,12 +393,19 @@ public class ShootBall : MonoBehaviour
     {
         if (gameRoot == null)
         {
-            ShowDelayedGuide();
+            CompleteGameRootEnter();
             return;
         }
 
         gameRoot.DOKill();
-        gameRoot.DOMoveY(1003f, 0.5f).OnComplete(ShowDelayedGuide);
+        gameRoot.DOMoveY(1003f, 0.5f).OnComplete(CompleteGameRootEnter);
+    }
+
+    private void CompleteGameRootEnter()
+    {
+        if (boardController != null)
+            boardController.SetBoardEntryInProgress(false);
+        ShowDelayedGuide();
     }
 
     private void PrepareDelayedGuide()
@@ -423,6 +453,7 @@ public class ShootBall : MonoBehaviour
         foreach (StreamRibbon stream in streams)
             if (stream.mesh != null) Destroy(stream.mesh);
         if (coloredStreamMaterial != null) Destroy(coloredStreamMaterial);
+        if (mainStreamMaterial != null) Destroy(mainStreamMaterial);
         if (coloredStreamTexture != null) Destroy(coloredStreamTexture);
         if (streamRoot != null) Destroy(streamRoot);
     }
