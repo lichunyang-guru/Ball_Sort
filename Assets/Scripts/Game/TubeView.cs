@@ -36,6 +36,8 @@ public class TubeView : MonoBehaviour
 
     [Tooltip("水柱总高度 16 对应的完整内腔范围。")]
     [SerializeField] private SpriteMask waterInteriorMask;
+    [Tooltip("遮罩顶边高出满水位的世界距离，避免裁切水面边缘。")]
+    [Min(0f)] [SerializeField] private float waterMaskTopClearanceWorld;
 
     private Vector3 waterBottomLocalPosition;
     private Vector3 bodyBottomOffsetLocal;
@@ -194,7 +196,9 @@ public class TubeView : MonoBehaviour
         Vector3 top = waterInteriorMask.transform.TransformPoint(
             new Vector3(bounds.center.x, bounds.max.y, bounds.center.z));
         waterBottomLocalPosition = transform.InverseTransformPoint(bottom);
-        heightUnitLocal = Vector3.Distance(transform.InverseTransformPoint(top), waterBottomLocalPosition) / Capacity;
+        float interiorHeightWorld = Vector3.Distance(top, bottom);
+        float waterHeightWorld = interiorHeightWorld - Mathf.Max(0f, waterMaskTopClearanceWorld);
+        heightUnitLocal = waterHeightWorld / (Capacity * Mathf.Abs(transform.lossyScale.y));
         return heightUnitLocal > 0f;
     }
 
