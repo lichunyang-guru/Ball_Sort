@@ -99,6 +99,10 @@ public class GameController : MonoBehaviour
     [SerializeField] private int requiredCompletedTubeCount = 4;
     [Tooltip("试管完成后，其上方冰块淡出的时间。")]
     [Min(0f)] [SerializeField] private float beeIceFadeDuration = 1.2f;
+    [Tooltip("冰块消失后，蜜蜂随机向上飞行的速度。")]
+    [Min(0.01f)] [SerializeField] private float beeFlightSpeed = 5.5f;
+    [Tooltip("蜜蜂飞出屏幕上缘的额外距离。")]
+    [Min(0f)] [SerializeField] private float beeFlightScreenClearance = 0.6f;
 
     [Header("Intro Drop Animation")]
     [Tooltip("开局时前几个管子的小球先隐藏，随后从管口上方落下。")]
@@ -155,9 +159,12 @@ public class GameController : MonoBehaviour
     private readonly Dictionary<TubeView, int> pendingIncomingMoves = new Dictionary<TubeView, int>();
     private readonly Dictionary<TubeView, int> pendingOutgoingMoves = new Dictionary<TubeView, int>();
     private readonly Dictionary<SpriteRenderer, float> initialBeeIceAlphas = new Dictionary<SpriteRenderer, float>();
+    private readonly Dictionary<Transform, Vector3> initialBeeLocalPositions = new Dictionary<Transform, Vector3>();
+    private readonly HashSet<Transform> flyingBees = new HashSet<Transform>();
     private GamePhase gamePhase = GamePhase.Idle;
     private SelectionState currentSelection;
     private bool puzzleSolvedInvoked;
+    private bool rescueInProgress;
     private bool introDropInProgress;
     private bool boardEntryInProgress;
     private int completedTubeAnalyticsCount;
@@ -205,6 +212,8 @@ public class GameController : MonoBehaviour
         DOTween.Kill(this);
 
         StopAllCoroutines();
+        flyingBees.Clear();
+        rescueInProgress = false;
         tubeModels.Clear();
         tubeTransitionCoroutines.Clear();
         pendingIncomingMoves.Clear();
@@ -227,6 +236,19 @@ public class GameController : MonoBehaviour
             if (entry.beeIceRenderer != null)
             {
                 entry.beeIceRenderer.DOKill();
+                Transform bee = entry.beeIceRenderer.transform.parent;
+                if (bee != null)
+                {
+                    bee.DOKill();
+                    if (!initialBeeLocalPositions.TryGetValue(bee, out Vector3 initialPosition))
+                    {
+                        initialPosition = bee.localPosition;
+                        initialBeeLocalPositions.Add(bee, initialPosition);
+                    }
+                    bee.localPosition = initialPosition;
+                    SpriteRenderer beeRenderer = bee.GetComponent<SpriteRenderer>();
+                    if (beeRenderer != null) beeRenderer.enabled = true;
+                }
                 if (!initialBeeIceAlphas.TryGetValue(entry.beeIceRenderer, out float initialAlpha))
                 {
                     initialAlpha = entry.beeIceRenderer.color.a;
@@ -802,23 +824,58 @@ public class GameController : MonoBehaviour
             yield return batchSequence.WaitForCompletion();
         }
 
+        TubeLevelEntry lastFrozenBee = null;
+        if (preparedMove.puzzleSolvedByMove)
+        {
+            foreach (TubeLevelEntry entry in levelEntries)
+            {
+                if (entry != null && entry.tubeView != null && entry.beeIceRenderer != null
+                    && entry.beeIceRenderer.color.a > 0.01f
+                    && tubeModels.TryGetValue(entry.tubeView, out TubeModel model)
+                    && model.IsEmpty)
+                {
+                    lastFrozenBee = entry;
+                    break;
+                }
+            }
+        }
+
+        bool startedRescue = false;
         if (preparedMove.targetCompletedByMove)
         {
             // 满管后的完成动画独立播放，不阻塞后续操作。
             preparedMove.targetView.PlayCompletedAnimation(
                 preparedMove.move.Color,
                 ResolveCompletedLazhuTint(preparedMove.move.Color));
-            FadeBeeIce(preparedMove.targetView);
+            if (lastFrozenBee != null)
+            {
+                TubeLevelEntry rescueTarget = lastFrozenBee;
+                rescueInProgress = true;
+                startedRescue = FadeBeeIce(preparedMove.targetView,
+                    bee => StartCoroutine(RescueLastBeeRoutine(bee, rescueTarget)));
+                if (!startedRescue) rescueInProgress = false;
+            }
+            if (!startedRescue) FadeBeeIce(preparedMove.targetView);
         }
 
         if (preparedMove.puzzleSolvedByMove && !puzzleSolvedInvoked)
         {
             puzzleSolvedInvoked = true;
+            if (!startedRescue && lastFrozenBee != null)
+                FadeBeeIce(lastFrozenBee.tubeView);
+            yield return new WaitForSeconds(Mathf.Max(0f, beeIceFadeDuration));
+            yield return null;
+            while (rescueInProgress || flyingBees.Count > 0) yield return null;
             onPuzzleSolved?.Invoke();
+            if (preparedMove.targetCompletedByMove)
+            {
+                GameConfig.Instance?.AddTargetCompleteCount();
+            }
+            GameConfig.Instance?.AddTargetLevelCount();
         }
     }
 
-    private void FadeBeeIce(TubeView completedTube)
+    private bool FadeBeeIce(TubeView completedTube, Action<Transform> onIceGone = null)
     {
         foreach (TubeLevelEntry entry in levelEntries)
         {
@@ -826,9 +883,103 @@ public class GameController : MonoBehaviour
                 continue;
 
             entry.beeIceRenderer.DOKill();
-            entry.beeIceRenderer.DOFade(0f, Mathf.Max(0f, beeIceFadeDuration));
-            return;
+            Transform bee = entry.beeIceRenderer.transform.parent;
+            entry.beeIceRenderer.DOFade(0f, Mathf.Max(0f, beeIceFadeDuration))
+                .OnComplete(() =>
+                {
+                    if (onIceGone != null) onIceGone(bee);
+                    else FlyBeeAway(bee);
+                });
+            return true;
         }
+        return false;
+    }
+
+    private IEnumerator RescueLastBeeRoutine(Transform rescuer, TubeLevelEntry trappedEntry)
+    {
+        Transform trappedBee = trappedEntry != null && trappedEntry.beeIceRenderer != null
+            ? trappedEntry.beeIceRenderer.transform.parent : null;
+        if (rescuer == null || trappedBee == null)
+        {
+            rescueInProgress = false;
+            FlyBeeAway(rescuer);
+            yield break;
+        }
+
+        float side = rescuer.position.x < trappedBee.position.x ? -1f : 1f;
+        float noiseSeed = UnityEngine.Random.Range(0f, 100f);
+        float elapsed = 0f;
+        while (rescuer != null && trappedBee != null && elapsed < 3f)
+        {
+            Vector3 destination = trappedBee.position + new Vector3(side * 0.3f, 0.1f, 0f);
+            Vector3 toDestination = destination - rescuer.position;
+            float step = Mathf.Max(0.01f, beeFlightSpeed) * Time.deltaTime;
+            if (toDestination.magnitude <= Mathf.Max(0.05f, step))
+            {
+                rescuer.position = destination;
+                break;
+            }
+
+            float sway = (Mathf.PerlinNoise(noiseSeed, elapsed * 8f) - 0.5f) * 0.5f;
+            Vector3 direction = (toDestination.normalized + new Vector3(sway, 0f, 0f)).normalized;
+            rescuer.position += direction * step;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (rescuer == null || trappedBee == null
+            || !FadeBeeIce(trappedEntry.tubeView, rescuedBee =>
+            {
+                rescueInProgress = false;
+                FlyBeeAway(rescuer);
+                FlyBeeAway(rescuedBee);
+            }))
+        {
+            rescueInProgress = false;
+            FlyBeeAway(rescuer);
+        }
+    }
+
+    private void FlyBeeAway(Transform bee)
+    {
+        if (bee == null || !flyingBees.Add(bee)) return;
+        StartCoroutine(FlyBeeAwayRoutine(bee));
+    }
+
+    private IEnumerator FlyBeeAwayRoutine(Transform bee)
+    {
+        Vector3 start = bee.position;
+        Camera camera = worldCamera != null ? worldCamera : Camera.main;
+        float screenTop = camera != null
+            ? camera.ViewportToWorldPoint(new Vector3(0.5f, 1f,
+                Mathf.Abs(start.z - camera.transform.position.z))).y
+            : start.y + 2f;
+        float endY = Mathf.Max(screenTop + beeFlightScreenClearance, start.y + 2f);
+        float sideways = 0f;
+        float targetSideways = 0f;
+        float directionChangeTime = 0f;
+        float speed = Mathf.Max(0.01f, beeFlightSpeed);
+
+        while (bee != null && bee.position.y < endY)
+        {
+            float deltaTime = Time.deltaTime;
+            directionChangeTime -= deltaTime;
+            if (directionChangeTime <= 0f)
+            {
+                targetSideways = UnityEngine.Random.Range(-0.9f, 0.9f);
+                directionChangeTime = UnityEngine.Random.Range(0.08f, 0.18f);
+            }
+            sideways = Mathf.MoveTowards(sideways, targetSideways, deltaTime * 7f);
+            bee.position += new Vector3(sideways, 1f, 0f).normalized * (speed * deltaTime);
+            yield return null;
+        }
+
+        if (bee != null)
+        {
+            SpriteRenderer beeRenderer = bee.GetComponent<SpriteRenderer>();
+            if (beeRenderer != null) beeRenderer.enabled = false;
+        }
+        flyingBees.Remove(bee);
     }
 
     private PreparedMoveState PrepareMove(
@@ -855,15 +1006,13 @@ public class GameController : MonoBehaviour
         bool targetWasCompleted = targetModel.IsCompleted;
         targetModel.AddTop(move.Color, move.TransferCount);
         preparedMove.targetCompletedByMove = !targetWasCompleted && targetModel.IsCompleted;
+        preparedMove.puzzleSolvedByMove = CheckWinCondition();
         if (preparedMove.targetCompletedByMove)
         {
-            RecordCompletedTube();
+            RecordCompletedTube(!preparedMove.puzzleSolvedByMove);
         }
-
-        preparedMove.puzzleSolvedByMove = CheckWinCondition();
         if (preparedMove.puzzleSolvedByMove)
         {
-            GameConfig.Instance?.AddTargetLevelCount();
             gamePhase = GamePhase.Win;
         }
 
@@ -951,12 +1100,12 @@ public class GameController : MonoBehaviour
         GameConfig.Instance.OpRecord();
     }
 
-    private void RecordCompletedTube()
+    private void RecordCompletedTube(bool updateStoreProgress)
     {
         completedTubeAnalyticsCount++;
         Luna.Unity.Analytics.LogEvent("tube_completed", completedTubeAnalyticsCount);
 
-        if (GameConfig.Instance == null)
+        if (!updateStoreProgress || GameConfig.Instance == null)
         {
             return;
         }

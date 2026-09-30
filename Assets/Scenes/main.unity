@@ -1545,6 +1545,8 @@ MonoBehaviour:
     columns: []
   requiredCompletedTubeCount: 5
   beeIceFadeDuration: 1.2
+  beeFlightSpeed: 5.5
+  beeFlightScreenClearance: 0.6
   introDropTubeCount: 5
   introDropDelay: 1.25
   introDropSpawnHeight: -1.2
@@ -4031,11 +4033,10 @@ MonoBehaviour:
   gameRoot: {fileID: 291055173}
   guidePanel: {fileID: 8445018085462804316}
   iceRoot: {fileID: 1467722748}
-  iceLandingYOffset: 0.2
+  iceLandingYOffset: 0
   iceDropDelay: 0.12
   iceDropDuration: 0.8
   iceStartClearance: 0.5
-  iceScreenMargin: 0.05
   beePanel: {fileID: 1677514015}
   beeShowDuration: 1.2
   beeDismissDelay: 1.5

@@ -18,12 +18,11 @@ public class ShootBall : MonoBehaviour
     [Header("Ice Drop")]
     [Tooltip("试管上升到位后，从屏幕上方落下的冰块根节点。场景位置作为落点基准。")]
     [SerializeField] private Transform iceRoot;
-    [Tooltip("运行时落点相对编辑器位置上移的距离，不改变 IceRoot 的缩放。")]
+    [Tooltip("运行时落点相对编辑器位置上移的距离；不会被屏幕上缘自动拉回。")]
     [Min(0f)] [SerializeField] private float iceLandingYOffset = 0.2f;
     [Min(0f)] [SerializeField] private float iceDropDelay = 0.12f;
     [Min(0.01f)] [SerializeField] private float iceDropDuration = 0.8f;
     [Min(0f)] [SerializeField] private float iceStartClearance = 0.5f;
-    [Min(0f)] [SerializeField] private float iceScreenMargin = 0.05f;
 
     [Header("Bee Panel")]
     [Tooltip("冰块落稳后显示的提示面板，点击屏幕任意位置后淡出。")]
@@ -95,6 +94,7 @@ public class ShootBall : MonoBehaviour
     private bool iceLanded;
     private int lastScreenWidth;
     private int lastScreenHeight;
+    private float lastAppliedIceLandingYOffset;
 
     private void Awake()
     {
@@ -171,7 +171,8 @@ public class ShootBall : MonoBehaviour
     private void LateUpdate()
     {
         if (iceLanded && iceRoot != null
-            && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height))
+            && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height
+                || !Mathf.Approximately(lastAppliedIceLandingYOffset, iceLandingYOffset)))
             FitIceRootToScreen();
     }
 
@@ -494,26 +495,26 @@ public class ShootBall : MonoBehaviour
 
     private void FitIceRootToScreen()
     {
-        Camera camera = Camera.main;
-        if (camera == null || iceRoot == null) return;
+        if (iceRoot == null) return;
 
         iceRoot.position = iceOriginalLandingPosition + Vector3.up * Mathf.Max(0f, iceLandingYOffset);
+        lastAppliedIceLandingYOffset = iceLandingYOffset;
         SpriteRenderer[] renderers = iceRoot.GetComponentsInChildren<SpriteRenderer>(true);
         if (renderers.Length == 0) return;
 
-        Bounds bounds = renderers[0].bounds;
-        for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
-
-        float depth = Mathf.Abs(iceOriginalLandingPosition.z - camera.transform.position.z);
-        float top = camera.ViewportToWorldPoint(new Vector3(0.5f, 1f, depth)).y;
-        float bottom = camera.ViewportToWorldPoint(new Vector3(0.5f, 0f, depth)).y;
-        float margin = Mathf.Max(0f, iceScreenMargin);
-        float shiftY = 0f;
-        if (bounds.max.y > top - margin)
-            shiftY = top - margin - bounds.max.y;
-        else if (bounds.min.y < bottom + margin)
-            shiftY = bottom + margin - bounds.min.y;
-        iceRoot.position += Vector3.up * shiftY;
+        Bounds bounds = default;
+        bool hasVisibleRenderer = false;
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            if (!renderer.enabled || renderer.color.a <= 0.01f) continue;
+            if (hasVisibleRenderer) bounds.Encapsulate(renderer.bounds);
+            else
+            {
+                bounds = renderer.bounds;
+                hasVisibleRenderer = true;
+            }
+        }
+        if (!hasVisibleRenderer) return;
 
         iceLandingPosition = iceRoot.position;
         iceBottomOffset = iceLandingPosition.y - bounds.min.y;
@@ -524,7 +525,8 @@ public class ShootBall : MonoBehaviour
     private void CompleteGameRootEnter()
     {
         iceLanded = true;
-        if (iceRoot != null && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height))
+        if (iceRoot != null && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height
+            || !Mathf.Approximately(lastAppliedIceLandingYOffset, iceLandingYOffset)))
             FitIceRootToScreen();
 
         if (beePanel != null)
