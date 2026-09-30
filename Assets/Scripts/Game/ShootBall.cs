@@ -15,6 +15,23 @@ public class ShootBall : MonoBehaviour
     public Transform gameRoot;
     public GuidePanel guidePanel;
 
+    [Header("Ice Drop")]
+    [Tooltip("试管上升到位后，从屏幕上方落下的冰块根节点。场景位置作为落点基准。")]
+    [SerializeField] private Transform iceRoot;
+    [Tooltip("运行时落点相对编辑器位置上移的距离，不改变 IceRoot 的缩放。")]
+    [Min(0f)] [SerializeField] private float iceLandingYOffset = 0.2f;
+    [Min(0f)] [SerializeField] private float iceDropDelay = 0.12f;
+    [Min(0.01f)] [SerializeField] private float iceDropDuration = 0.8f;
+    [Min(0f)] [SerializeField] private float iceStartClearance = 0.5f;
+    [Min(0f)] [SerializeField] private float iceScreenMargin = 0.05f;
+
+    [Header("Bee Panel")]
+    [Tooltip("冰块落稳后显示的提示面板，点击屏幕任意位置后淡出。")]
+    [SerializeField] private CanvasGroup beePanel;
+    [Min(0f)] [SerializeField] private float beeShowDuration = 1.2f;
+    [Min(0f)] [SerializeField] private float beeDismissDelay = 1.5f;
+    [Min(0f)] [SerializeField] private float beeFadeDuration = 0.25f;
+
     [Header("Water Stream")]
     public Material streamMaterial;
     [Min(0.01f)] public float streamWidth = 0.2f;
@@ -68,9 +85,35 @@ public class ShootBall : MonoBehaviour
     private GameObject streamRoot;
     private float flowSpeed;
     private GameController boardController;
+    private Vector3 iceLandingPosition;
+    private Vector3 iceOriginalLandingPosition;
+    private float iceBottomOffset;
+    private Sequence iceDropSequence;
+    private Tween beeFadeTween;
+    private float beeDismissReadyTime;
+    private bool waitingForBeeDismiss;
+    private bool iceLanded;
+    private int lastScreenWidth;
+    private int lastScreenHeight;
 
     private void Awake()
     {
+        if (iceRoot != null)
+        {
+            iceLandingPosition = iceRoot.position;
+            iceOriginalLandingPosition = iceLandingPosition;
+            iceBottomOffset = 0f;
+            foreach (SpriteRenderer renderer in iceRoot.GetComponentsInChildren<SpriteRenderer>(true))
+                iceBottomOffset = Mathf.Max(iceBottomOffset, iceLandingPosition.y - renderer.bounds.min.y);
+            iceRoot.gameObject.SetActive(false);
+        }
+        if (beePanel != null)
+        {
+            beePanel.alpha = 0f;
+            beePanel.interactable = false;
+            beePanel.blocksRaycasts = false;
+        }
+
         boardController = gameRoot != null
             ? gameRoot.GetComponentInChildren<GameController>(true) : null;
         if (boardController == null) boardController = FindObjectOfType<GameController>();
@@ -113,6 +156,23 @@ public class ShootBall : MonoBehaviour
         PrepareStream();
         PrepareDelayedGuide();
         StartCoroutine(ShootRoutine());
+    }
+
+    private void Update()
+    {
+        if (!waitingForBeeDismiss || Time.time < beeDismissReadyTime)
+            return;
+
+        if (Input.GetMouseButtonDown(0)
+            || (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
+            DismissBeePanel();
+    }
+
+    private void LateUpdate()
+    {
+        if (iceLanded && iceRoot != null
+            && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height))
+            FitIceRootToScreen();
     }
 
     private void PrepareStream()
@@ -396,15 +456,101 @@ public class ShootBall : MonoBehaviour
     {
         if (gameRoot == null)
         {
-            CompleteGameRootEnter();
+            PlayIceDrop();
             return;
         }
 
         gameRoot.DOKill();
-        gameRoot.DOMoveY(1003f, 0.5f).OnComplete(CompleteGameRootEnter);
+        gameRoot.DOMoveY(1003f, 0.5f).OnComplete(PlayIceDrop);
+    }
+
+    private void PlayIceDrop()
+    {
+        if (iceRoot == null)
+        {
+            CompleteGameRootEnter();
+            return;
+        }
+
+        iceRoot.gameObject.SetActive(true);
+        FitIceRootToScreen();
+
+        Camera camera = Camera.main;
+        float screenTop = camera != null
+            ? camera.ViewportToWorldPoint(new Vector3(0.5f, 1f,
+                Mathf.Abs(iceLandingPosition.z - camera.transform.position.z))).y
+            : iceLandingPosition.y + 8f;
+        float startY = Mathf.Max(screenTop + iceBottomOffset + iceStartClearance,
+            iceLandingPosition.y + iceStartClearance);
+        iceRoot.position = new Vector3(iceLandingPosition.x, startY, iceLandingPosition.z);
+
+        iceDropSequence?.Kill();
+        iceDropSequence = DOTween.Sequence().SetTarget(iceRoot);
+        iceDropSequence.AppendInterval(Mathf.Max(0f, iceDropDelay));
+        iceDropSequence.Append(iceRoot.DOMoveY(iceLandingPosition.y,
+            Mathf.Max(0.01f, iceDropDuration)).SetEase(Ease.OutBounce));
+        iceDropSequence.OnComplete(CompleteGameRootEnter);
+    }
+
+    private void FitIceRootToScreen()
+    {
+        Camera camera = Camera.main;
+        if (camera == null || iceRoot == null) return;
+
+        iceRoot.position = iceOriginalLandingPosition + Vector3.up * Mathf.Max(0f, iceLandingYOffset);
+        SpriteRenderer[] renderers = iceRoot.GetComponentsInChildren<SpriteRenderer>(true);
+        if (renderers.Length == 0) return;
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+
+        float depth = Mathf.Abs(iceOriginalLandingPosition.z - camera.transform.position.z);
+        float top = camera.ViewportToWorldPoint(new Vector3(0.5f, 1f, depth)).y;
+        float bottom = camera.ViewportToWorldPoint(new Vector3(0.5f, 0f, depth)).y;
+        float margin = Mathf.Max(0f, iceScreenMargin);
+        float shiftY = 0f;
+        if (bounds.max.y > top - margin)
+            shiftY = top - margin - bounds.max.y;
+        else if (bounds.min.y < bottom + margin)
+            shiftY = bottom + margin - bounds.min.y;
+        iceRoot.position += Vector3.up * shiftY;
+
+        iceLandingPosition = iceRoot.position;
+        iceBottomOffset = iceLandingPosition.y - bounds.min.y;
+        lastScreenWidth = Screen.width;
+        lastScreenHeight = Screen.height;
     }
 
     private void CompleteGameRootEnter()
+    {
+        iceLanded = true;
+        if (iceRoot != null && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height))
+            FitIceRootToScreen();
+
+        if (beePanel != null)
+        {
+            beeFadeTween?.Kill();
+            beeFadeTween = beePanel.DOFade(1f, Mathf.Max(0f, beeShowDuration))
+                .SetEase(Ease.OutSine).OnComplete(() =>
+                {
+                    beeDismissReadyTime = Time.time + Mathf.Max(0f, beeDismissDelay);
+                    waitingForBeeDismiss = true;
+                });
+            return;
+        }
+
+        EnableBoardInteraction();
+    }
+
+    private void DismissBeePanel()
+    {
+        waitingForBeeDismiss = false;
+        beeFadeTween?.Kill();
+        beeFadeTween = beePanel.DOFade(0f, Mathf.Max(0f, beeFadeDuration))
+            .OnComplete(EnableBoardInteraction);
+    }
+
+    private void EnableBoardInteraction()
     {
         if (boardController != null)
             boardController.SetBoardEntryInProgress(false);
@@ -440,6 +586,8 @@ public class ShootBall : MonoBehaviour
     private void OnDisable()
     {
         StopAllCoroutines();
+        iceDropSequence?.Kill();
+        beeFadeTween?.Kill();
         HideStream();
     }
 

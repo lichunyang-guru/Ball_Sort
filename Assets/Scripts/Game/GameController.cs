@@ -20,6 +20,8 @@ public class GameController : MonoBehaviour
     {
         [Tooltip("本关中对应的试管视图对象。")]
         public TubeView tubeView;
+        [Tooltip("试管上方 Bee 子物体中的 Ice，试管完成时逐渐消失。")]
+        public SpriteRenderer beeIceRenderer;
         [Tooltip("从底部到顶部配置颜色和长度，总长度不能超过试管容量；空管不添加条目。")]
         public List<WaterColumnEntry> columns = new List<WaterColumnEntry>();
 
@@ -95,6 +97,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private List<TubeLevelEntry> levelEntries = new List<TubeLevelEntry>();
     [Tooltip("需要完成的长管数量；同时其余试管必须为空才算解谜完成。")]
     [SerializeField] private int requiredCompletedTubeCount = 4;
+    [Tooltip("试管完成后，其上方冰块淡出的时间。")]
+    [Min(0f)] [SerializeField] private float beeIceFadeDuration = 1.2f;
 
     [Header("Intro Drop Animation")]
     [Tooltip("开局时前几个管子的小球先隐藏，随后从管口上方落下。")]
@@ -150,6 +154,7 @@ public class GameController : MonoBehaviour
     private readonly Dictionary<TubeView, Coroutine> tubeTransitionCoroutines = new Dictionary<TubeView, Coroutine>();
     private readonly Dictionary<TubeView, int> pendingIncomingMoves = new Dictionary<TubeView, int>();
     private readonly Dictionary<TubeView, int> pendingOutgoingMoves = new Dictionary<TubeView, int>();
+    private readonly Dictionary<SpriteRenderer, float> initialBeeIceAlphas = new Dictionary<SpriteRenderer, float>();
     private GamePhase gamePhase = GamePhase.Idle;
     private SelectionState currentSelection;
     private bool puzzleSolvedInvoked;
@@ -217,6 +222,19 @@ public class GameController : MonoBehaviour
             if (entry == null || entry.tubeView == null)
             {
                 continue;
+            }
+
+            if (entry.beeIceRenderer != null)
+            {
+                entry.beeIceRenderer.DOKill();
+                if (!initialBeeIceAlphas.TryGetValue(entry.beeIceRenderer, out float initialAlpha))
+                {
+                    initialAlpha = entry.beeIceRenderer.color.a;
+                    initialBeeIceAlphas.Add(entry.beeIceRenderer, initialAlpha);
+                }
+                Color iceColor = entry.beeIceRenderer.color;
+                iceColor.a = initialAlpha;
+                entry.beeIceRenderer.color = iceColor;
             }
 
             StopTubeTransition(entry.tubeView);
@@ -790,12 +808,26 @@ public class GameController : MonoBehaviour
             preparedMove.targetView.PlayCompletedAnimation(
                 preparedMove.move.Color,
                 ResolveCompletedLazhuTint(preparedMove.move.Color));
+            FadeBeeIce(preparedMove.targetView);
         }
 
         if (preparedMove.puzzleSolvedByMove && !puzzleSolvedInvoked)
         {
             puzzleSolvedInvoked = true;
             onPuzzleSolved?.Invoke();
+        }
+    }
+
+    private void FadeBeeIce(TubeView completedTube)
+    {
+        foreach (TubeLevelEntry entry in levelEntries)
+        {
+            if (entry == null || entry.tubeView != completedTube || entry.beeIceRenderer == null)
+                continue;
+
+            entry.beeIceRenderer.DOKill();
+            entry.beeIceRenderer.DOFade(0f, Mathf.Max(0f, beeIceFadeDuration));
+            return;
         }
     }
 
