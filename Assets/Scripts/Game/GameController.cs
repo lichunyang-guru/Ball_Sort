@@ -161,6 +161,7 @@ public class GameController : MonoBehaviour
     private readonly Dictionary<SpriteRenderer, float> initialBeeIceAlphas = new Dictionary<SpriteRenderer, float>();
     private readonly Dictionary<Transform, Vector3> initialBeeLocalPositions = new Dictionary<Transform, Vector3>();
     private readonly HashSet<Transform> flyingBees = new HashSet<Transform>();
+    private readonly HashSet<Transform> beesWithFlightSound = new HashSet<Transform>();
     private GamePhase gamePhase = GamePhase.Idle;
     private SelectionState currentSelection;
     private bool puzzleSolvedInvoked;
@@ -213,6 +214,7 @@ public class GameController : MonoBehaviour
 
         StopAllCoroutines();
         flyingBees.Clear();
+        beesWithFlightSound.Clear();
         rescueInProgress = false;
         tubeModels.Clear();
         tubeTransitionCoroutines.Clear();
@@ -906,6 +908,7 @@ public class GameController : MonoBehaviour
             yield break;
         }
 
+        PlayBeeFlightSound(rescuer);
         float side = rescuer.position.x < trappedBee.position.x ? -1f : 1f;
         float noiseSeed = UnityEngine.Random.Range(0f, 100f);
         float elapsed = 0f;
@@ -943,7 +946,14 @@ public class GameController : MonoBehaviour
     private void FlyBeeAway(Transform bee)
     {
         if (bee == null || !flyingBees.Add(bee)) return;
+        PlayBeeFlightSound(bee);
         StartCoroutine(FlyBeeAwayRoutine(bee));
+    }
+
+    private void PlayBeeFlightSound(Transform bee)
+    {
+        if (bee != null && beesWithFlightSound.Add(bee))
+            PlaySfxSafe("bee");
     }
 
     private IEnumerator FlyBeeAwayRoutine(Transform bee)

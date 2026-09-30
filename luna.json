@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "9a14ddbd688ed47209c467f14b1df537",
     "applicationID": 39134,
-    "creativeName": "发射水滴版",
+    "creativeName": "解救蜜蜂版",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -8338,10 +8338,6 @@
                 "excluded": true
             },
             {
-                "name": "DG.Tweening.Core.Easing.Bounce",
-                "excluded": true
-            },
-            {
                 "name": "DG.Tweening.Core.Easing.EaseCurve",
                 "excluded": true
             },
@@ -15335,7 +15331,7 @@
                     },
                     {
                         "name": "MoveTowards",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LerpAngle",
@@ -17071,7 +17067,7 @@
                     },
                     {
                         "name": "TransformPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TransformVector",
@@ -17609,7 +17605,7 @@
                     },
                     {
                         "name": "ViewportToWorldPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ViewportPointToRay",
@@ -17883,7 +17879,7 @@
                     },
                     {
                         "name": "bounds#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sortingOrder#get",
@@ -19387,7 +19383,7 @@
                     },
                     {
                         "name": "material#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "material#set",
@@ -19395,7 +19391,7 @@
                     },
                     {
                         "name": "fontData#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fontData#set",
@@ -19403,7 +19399,7 @@
                     },
                     {
                         "name": "mainTexture#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "alignment#get",
@@ -19419,7 +19415,7 @@
                     },
                     {
                         "name": "text#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "font#get",
@@ -19539,11 +19535,11 @@
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnEnable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDisable",
@@ -19551,7 +19547,7 @@
                     },
                     {
                         "name": "ApplyFontDataChanges",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CalculateLayoutInputHorizontal",
@@ -21715,7 +21711,7 @@
                     },
                     {
                         "name": "pixelsPerUnit#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "packed#get",
@@ -21771,7 +21767,7 @@
                     },
                     {
                         "name": "pivot#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "associatedAlphaSplitTexture#get",
@@ -25745,11 +25741,11 @@
                     },
                     {
                         "name": "interactable#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "blocksRaycasts#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ignoreParentGroups#set",
@@ -25939,7 +25935,7 @@
                     },
                     {
                         "name": "font#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "font#set",
@@ -25947,7 +25943,7 @@
                     },
                     {
                         "name": "fontSize#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fontSize#set",
@@ -25963,7 +25959,7 @@
                     },
                     {
                         "name": "bestFit#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "bestFit#set",
@@ -25971,7 +25967,7 @@
                     },
                     {
                         "name": "minSize#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "minSize#set",
@@ -25979,7 +25975,7 @@
                     },
                     {
                         "name": "maxSize#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "maxSize#set",
@@ -25987,7 +25983,7 @@
                     },
                     {
                         "name": "alignment#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "alignment#set",
@@ -26011,7 +26007,7 @@
                     },
                     {
                         "name": "horizontalOverflow#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "horizontalOverflow#set",
@@ -26019,7 +26015,7 @@
                     },
                     {
                         "name": "verticalOverflow#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "verticalOverflow#set",
@@ -26027,7 +26023,7 @@
                     },
                     {
                         "name": "lineSpacing#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "lineSpacing#set",
@@ -26857,11 +26853,11 @@
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Switch",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDestroy",
@@ -30268,6 +30264,26 @@
                     {
                         "name": "SetBoardEntryInProgress",
                         "excluded": false
+                    },
+                    {
+                        "name": "FadeBeeIce",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RescueLastBeeRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FlyBeeAway",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FlyBeeAwayRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayBeeFlightSound",
+                        "excluded": false
                     }
                 ]
             },
@@ -32634,6 +32650,42 @@
                     {
                         "name": "CompleteGameRootEnter",
                         "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayIceDrop",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FitIceRootToScreen",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DismissBeePanel",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnableBoardInteraction",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetCameraTopWorldY",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryGetIceTop",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheIceBottomOffset",
+                        "excluded": false
                     }
                 ]
             },
@@ -34618,6 +34670,24 @@
                     {
                         "name": "FitWidth",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Core.Easing.Bounce",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "EaseIn",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EaseOut",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EaseInOut",
+                        "excluded": true
                     }
                 ]
             }

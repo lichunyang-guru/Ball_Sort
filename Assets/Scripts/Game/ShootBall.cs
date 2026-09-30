@@ -16,10 +16,10 @@ public class ShootBall : MonoBehaviour
     public GuidePanel guidePanel;
 
     [Header("Ice Drop")]
-    [Tooltip("试管上升到位后，从屏幕上方落下的冰块根节点。场景位置作为落点基准。")]
+    [Tooltip("试管上升到位后，从屏幕上方落下的冰块根节点。冰块顶部按屏幕上缘定位。")]
     [SerializeField] private Transform iceRoot;
-    [Tooltip("运行时落点相对编辑器位置上移的距离；不会被屏幕上缘自动拉回。")]
-    [Min(0f)] [SerializeField] private float iceLandingYOffset = 0.2f;
+    [Tooltip("可见冰块顶部到屏幕上缘固定保留的世界空间距离。")]
+    [Min(0f)] [SerializeField] private float iceScreenTopMargin = 0.1f;
     [Min(0f)] [SerializeField] private float iceDropDelay = 0.12f;
     [Min(0.01f)] [SerializeField] private float iceDropDuration = 0.8f;
     [Min(0f)] [SerializeField] private float iceStartClearance = 0.5f;
@@ -85,26 +85,17 @@ public class ShootBall : MonoBehaviour
     private float flowSpeed;
     private GameController boardController;
     private Vector3 iceLandingPosition;
-    private Vector3 iceOriginalLandingPosition;
     private float iceBottomOffset;
     private Sequence iceDropSequence;
     private Tween beeFadeTween;
     private float beeDismissReadyTime;
     private bool waitingForBeeDismiss;
     private bool iceLanded;
-    private int lastScreenWidth;
-    private int lastScreenHeight;
-    private float lastAppliedIceLandingYOffset;
-
     private void Awake()
     {
         if (iceRoot != null)
         {
             iceLandingPosition = iceRoot.position;
-            iceOriginalLandingPosition = iceLandingPosition;
-            iceBottomOffset = 0f;
-            foreach (SpriteRenderer renderer in iceRoot.GetComponentsInChildren<SpriteRenderer>(true))
-                iceBottomOffset = Mathf.Max(iceBottomOffset, iceLandingPosition.y - renderer.bounds.min.y);
             iceRoot.gameObject.SetActive(false);
         }
         if (beePanel != null)
@@ -170,10 +161,7 @@ public class ShootBall : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (iceLanded && iceRoot != null
-            && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height
-                || !Mathf.Approximately(lastAppliedIceLandingYOffset, iceLandingYOffset)))
-            FitIceRootToScreen();
+        if (iceLanded) FitIceRootToScreen();
     }
 
     private void PrepareStream()
@@ -475,11 +463,11 @@ public class ShootBall : MonoBehaviour
 
         iceRoot.gameObject.SetActive(true);
         FitIceRootToScreen();
+        CacheIceBottomOffset();
 
         Camera camera = Camera.main;
         float screenTop = camera != null
-            ? camera.ViewportToWorldPoint(new Vector3(0.5f, 1f,
-                Mathf.Abs(iceLandingPosition.z - camera.transform.position.z))).y
+            ? GetCameraTopWorldY(camera, iceLandingPosition.z)
             : iceLandingPosition.y + 8f;
         float startY = Mathf.Max(screenTop + iceBottomOffset + iceStartClearance,
             iceLandingPosition.y + iceStartClearance);
@@ -497,37 +485,53 @@ public class ShootBall : MonoBehaviour
     {
         if (iceRoot == null) return;
 
-        iceRoot.position = iceOriginalLandingPosition + Vector3.up * Mathf.Max(0f, iceLandingYOffset);
-        lastAppliedIceLandingYOffset = iceLandingYOffset;
-        SpriteRenderer[] renderers = iceRoot.GetComponentsInChildren<SpriteRenderer>(true);
-        if (renderers.Length == 0) return;
-
-        Bounds bounds = default;
-        bool hasVisibleRenderer = false;
-        foreach (SpriteRenderer renderer in renderers)
+        Camera camera = Camera.main;
+        if (camera != null && TryGetIceTop(out float iceTop))
         {
-            if (!renderer.enabled || renderer.color.a <= 0.01f) continue;
-            if (hasVisibleRenderer) bounds.Encapsulate(renderer.bounds);
-            else
-            {
-                bounds = renderer.bounds;
-                hasVisibleRenderer = true;
-            }
+            float screenTop = GetCameraTopWorldY(camera, iceRoot.position.z);
+            float offset = screenTop - Mathf.Max(0f, iceScreenTopMargin) - iceTop;
+            if (!Mathf.Approximately(offset, 0f))
+                iceRoot.position += Vector3.up * offset;
         }
-        if (!hasVisibleRenderer) return;
 
         iceLandingPosition = iceRoot.position;
-        iceBottomOffset = iceLandingPosition.y - bounds.min.y;
-        lastScreenWidth = Screen.width;
-        lastScreenHeight = Screen.height;
+    }
+
+    private static float GetCameraTopWorldY(Camera camera, float worldZ)
+    {
+        if (camera.orthographic)
+            return camera.transform.position.y + camera.orthographicSize;
+
+        float depth = Mathf.Abs(worldZ - camera.transform.position.z);
+        return camera.ViewportToWorldPoint(new Vector3(0.5f, 1f, depth)).y;
+    }
+
+    private bool TryGetIceTop(out float iceTop)
+    {
+        iceTop = float.NegativeInfinity;
+        foreach (SpriteRenderer renderer in iceRoot.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            if (renderer.sprite == null || renderer.gameObject.name != "ice"
+                || !renderer.enabled || renderer.color.a <= 0.01f) continue;
+            iceTop = Mathf.Max(iceTop, renderer.bounds.max.y);
+        }
+        return !float.IsNegativeInfinity(iceTop);
+    }
+
+    private void CacheIceBottomOffset()
+    {
+        iceBottomOffset = 0f;
+        foreach (SpriteRenderer renderer in iceRoot.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            if (renderer.sprite != null && renderer.enabled)
+                iceBottomOffset = Mathf.Max(iceBottomOffset, iceRoot.position.y - renderer.bounds.min.y);
+        }
     }
 
     private void CompleteGameRootEnter()
     {
         iceLanded = true;
-        if (iceRoot != null && (lastScreenWidth != Screen.width || lastScreenHeight != Screen.height
-            || !Mathf.Approximately(lastAppliedIceLandingYOffset, iceLandingYOffset)))
-            FitIceRootToScreen();
+        FitIceRootToScreen();
 
         if (beePanel != null)
         {
