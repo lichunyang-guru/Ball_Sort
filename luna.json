@@ -1878,10 +1878,6 @@
                 "excluded": true
             },
             {
-                "name": "System.NotImplementedException",
-                "excluded": true
-            },
-            {
                 "name": "System.NotSupportedException",
                 "excluded": true
             },
@@ -5407,7 +5403,7 @@
             },
             {
                 "name": "UnityEngine.LightmapBakeType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.LightmapCompression",
@@ -5435,7 +5431,7 @@
             },
             {
                 "name": "UnityEngine.LightShadows",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.LightShape",
@@ -5935,7 +5931,7 @@
             },
             {
                 "name": "UnityEngine.RectTransform.Axis",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.RectTransform.Edge",
@@ -6391,7 +6387,7 @@
             },
             {
                 "name": "UnityEngine.SpriteMeshType",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.SpritePackingMode",
@@ -7582,10 +7578,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.SetPropertyUtility",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.AspectRatioFitter",
                 "excluded": true
             },
@@ -8583,6 +8575,74 @@
             },
             {
                 "name": "UnityEngine.WrapMode",
+                "excluded": false
+            },
+            {
+                "name": "Newtonsoft.Json.JsonException",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.JsonPropertyAttribute",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.JsonSerializerSettings",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.Utils.AssemblyVersion",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.JsonSerializationException",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.DefaultValueHandling",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.Formatting",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.JsonConstructorAttribute",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.JsonIgnoreAttribute",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.NullValueHandling",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.ObjectCreationHandling",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.Required",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.Serialization.IContractResolver",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.Serialization.ISerializationBinder",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.TypeNameHandling",
+                "excluded": true
+            },
+            {
+                "name": "Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver",
+                "excluded": true
+            },
+            {
+                "name": "AspectOrientation",
                 "excluded": false
             }
         ],
@@ -15877,7 +15937,7 @@
                     },
                     {
                         "name": "NameToID",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -17147,7 +17207,7 @@
                     },
                     {
                         "name": "SetAsFirstSibling",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetEnumerator",
@@ -17163,7 +17223,7 @@
                     },
                     {
                         "name": "SetPositionAndRotation",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -17839,7 +17899,7 @@
                     },
                     {
                         "name": "material#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMaterial#get",
@@ -17875,7 +17935,7 @@
                     },
                     {
                         "name": "materials#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "bounds#get",
@@ -18021,7 +18081,7 @@
                     },
                     {
                         "name": "rect#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "cachedRect#get",
@@ -18037,11 +18097,11 @@
                     },
                     {
                         "name": "SetSizeWithCurrentAnchors",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetParentSize",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetWorldCorners",
@@ -18527,31 +18587,31 @@
                     },
                     {
                         "name": "normalColor#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedColor#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedColor#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedColor#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "disabledColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "disabledColor#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "equalsT",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "equals",
@@ -18915,15 +18975,15 @@
                     },
                     {
                         "name": "raycastTarget#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "color#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "color#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
@@ -19219,7 +19279,7 @@
                     },
                     {
                         "name": "enabled#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pixelsPerUnitMultiplier#get",
@@ -20669,7 +20729,7 @@
                     },
                     {
                         "name": "Load",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "LoadComponent",
@@ -21687,7 +21747,7 @@
                     },
                     {
                         "name": "Create$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Create$2",
@@ -21699,11 +21759,11 @@
                     },
                     {
                         "name": "Create$4",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Create$5",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "name#get",
@@ -21739,7 +21799,7 @@
                     },
                     {
                         "name": "border#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "textureRect#get",
@@ -22077,7 +22137,7 @@
                     },
                     {
                         "name": "rootCanvas#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "worldCamera#get",
@@ -23377,7 +23437,7 @@
                     },
                     {
                         "name": "RaycastAll",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RaycastNonAlloc",
@@ -26185,7 +26245,7 @@
                     },
                     {
                         "name": "uiScaleMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "uiScaleMode#set",
@@ -26193,7 +26253,7 @@
                     },
                     {
                         "name": "screenMatchMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "screenMatchMode#set",
@@ -26217,7 +26277,7 @@
                     },
                     {
                         "name": "matchWidthOrHeight#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "matchWidthOrHeight#set",
@@ -27042,10 +27102,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "AddTargetCompleteCount",
-                        "excluded": false
-                    },
-                    {
                         "name": "OpRecord",
                         "excluded": false
                     },
@@ -27059,6 +27115,18 @@
                     },
                     {
                         "name": "TryPlayBGMOnInput",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnTubeCompleted",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyLegacyButtonColors",
                         "excluded": false
                     }
                 ]
@@ -29962,39 +30030,11 @@
                         "excluded": true
                     },
                     {
-                        "name": "BodyTopAnchor#get",
+                        "name": "NormalizeBodySpriteSize",
                         "excluded": false
                     },
                     {
-                        "name": "BottomOverlapWorld#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "BodyBottomWorldOffset#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "BeginLiftVisual",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideVisuals",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetHeightUnitWorld",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ShowWaterColumn",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetWaterColumnHeight",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CreateDropSequence",
+                        "name": "AnimateToWithSelectionBounce",
                         "excluded": false
                     }
                 ]
@@ -30065,7 +30105,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayOneShot",
@@ -30242,47 +30282,47 @@
                         "excluded": false
                     },
                     {
-                        "name": "CreateColumnReturnSequence",
+                        "name": "ExpandConfiguredBallPairs",
                         "excluded": false
                     },
                     {
-                        "name": "BindLandingSurfaceColor",
+                        "name": "GetRuntimeBallSlotIndex",
                         "excluded": false
                     },
                     {
-                        "name": "RefreshTubeColumnsIfIdle",
+                        "name": "GetMoveOrderedTopBalls",
                         "excluded": false
                     },
                     {
-                        "name": "RunMovingColumn",
+                        "name": "LateUpdate",
                         "excluded": false
                     },
                     {
-                        "name": "GetLevelWaterColors",
+                        "name": "ResolveConfiguredBallSprite",
                         "excluded": false
                     },
                     {
-                        "name": "SetBoardEntryInProgress",
+                        "name": "CreateSpriteFromTexture",
                         "excluded": false
                     },
                     {
-                        "name": "FadeBeeIce",
+                        "name": "EnsureBackgroundRenderer",
                         "excluded": false
                     },
                     {
-                        "name": "RescueLastBeeRoutine",
+                        "name": "UpdateBackgroundRenderer",
                         "excluded": false
                     },
                     {
-                        "name": "FlyBeeAway",
+                        "name": "ResolveCompletedLazhuSprite",
                         "excluded": false
                     },
                     {
-                        "name": "FlyBeeAwayRoutine",
+                        "name": "ScaleGameRootDistance",
                         "excluded": false
                     },
                     {
-                        "name": "PlayBeeFlightSound",
+                        "name": "IsTubeTransitionActive",
                         "excluded": false
                     }
                 ]
@@ -30293,10 +30333,6 @@
                 "instanceMethods": [
                     {
                         "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CreateInitialBalls",
                         "excluded": false
                     }
                 ]
@@ -30342,8 +30378,32 @@
                         "excluded": true
                     },
                     {
-                        "name": "GetOrthographicSizeForMinWidth",
+                        "name": "Awake",
                         "excluded": false
+                    },
+                    {
+                        "name": "CacheCanvasScalerSettings",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyLocalizedTextLayout",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CacheOriginalGameRootScale",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyCanvasScale",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyGameRootLayout",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ClampConfiguredUiTargets",
+                        "excluded": true
                     }
                 ]
             },
@@ -30654,24 +30714,28 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetBallSortingOrder",
+                        "name": "IsLongTube#get",
                         "excluded": false
                     },
                     {
-                        "name": "ConfigureWaterHeightLayout",
+                        "name": "GetSlotSpacing",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetMaskBgAlpha",
                         "excluded": false
                     },
                     {
-                        "name": "InitializeWaterBall",
+                        "name": "ApplyCompletedTubeTransparency",
                         "excluded": false
                     },
                     {
-                        "name": "GetWaterColumnLength",
+                        "name": "ApplyLazhuOutline",
                         "excluded": false
                     },
                     {
-                        "name": "RefreshWaterColumns",
-                        "excluded": false
+                        "name": "OnDestroy",
+                        "excluded": true
                     }
                 ]
             },
@@ -31029,6 +31093,14 @@
                 "instanceMethods": [
                     {
                         "name": "OpenStore",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HasStoreJumped#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResetSession",
                         "excluded": false
                     }
                 ]
@@ -32604,88 +32676,28 @@
                         "excluded": true
                     },
                     {
-                        "name": "PrepareStream",
-                        "excluded": false
-                    },
-                    {
-                        "name": "UpdateStream",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideStream",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
+                        "name": "PoolName#get",
                         "excluded": true
                     },
                     {
-                        "name": "OnValidate",
+                        "name": "SpawnBall",
                         "excluded": true
                     },
                     {
-                        "name": "PrepareMaterial",
-                        "excluded": false
+                        "name": "GetPathPositions",
+                        "excluded": true
                     },
                     {
-                        "name": "CreateRibbon",
-                        "excluded": false
+                        "name": "CanShoot",
+                        "excluded": true
                     },
                     {
-                        "name": "PrepareOutlets",
-                        "excluded": false
+                        "name": "InitializeBall",
+                        "excluded": true
                     },
                     {
-                        "name": "CorrectLegacyVisualSettings",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ConfigureTrackMask",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CompleteGameRootEnter",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayIceDrop",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FitIceRootToScreen",
-                        "excluded": false
-                    },
-                    {
-                        "name": "DismissBeePanel",
-                        "excluded": false
-                    },
-                    {
-                        "name": "EnableBoardInteraction",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetCameraTopWorldY",
-                        "excluded": false
-                    },
-                    {
-                        "name": "TryGetIceTop",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CacheIceBottomOffset",
-                        "excluded": false
+                        "name": "RecycleBall",
+                        "excluded": true
                     }
                 ]
             },
@@ -34006,136 +34018,6 @@
                 ]
             },
             {
-                "className": "GameController.WaterColumnEntry",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "WaterBodyTopAnchor",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetLocalSpriteBounds",
-                        "excluded": false
-                    },
-                    {
-                        "name": "NaturalUpColor#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CrossSectionHalfHeightWorld#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "BottomOverlapWorld#get",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetIncomingColor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ClearIncomingColor",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDisable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetSurfaceWorldPosition",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetRevealProgress",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ApplyRevealClip",
-                        "excluded": false
-                    },
-                    {
-                        "name": "AlignUp",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "WaterTransferVisual",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Awake",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayUp",
-                        "excluded": false
-                    },
-                    {
-                        "name": "PlayDown",
-                        "excluded": false
-                    },
-                    {
-                        "name": "HideVisuals",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SyncSorting",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CreateRevealSequence",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetRevealProgress",
-                        "excluded": false
-                    },
-                    {
-                        "name": "RestoreBody",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetWaterBallTint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "CreateDownProgressTween",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetDownProgress",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnDestroy",
-                        "excluded": true
-                    }
-                ]
-            },
-            {
                 "className": "UnityEngine.GradientAlphaKey",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -34642,38 +34524,6 @@
                 ]
             },
             {
-                "className": "ShootBall.StreamRibbon",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "Length#get",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
-                "className": "SpriteFillCameraWidth",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FitWidth",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "DG.Tweening.Core.Easing.Bounce",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -34687,6 +34537,288 @@
                     },
                     {
                         "name": "EaseInOut",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "Newtonsoft.Json.JsonConvert",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "stringify",
+                        "excluded": true
+                    },
+                    {
+                        "name": "parse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getEnumerableElementType",
+                        "excluded": true
+                    },
+                    {
+                        "name": "validateReflectable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "defaultGuard",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getCacheByType",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getMembers",
+                        "excluded": true
+                    },
+                    {
+                        "name": "preRawProcess",
+                        "excluded": true
+                    },
+                    {
+                        "name": "preProcess",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PopulateObject",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BindToName",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BindToType",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SplitFullyQualifiedTypeName",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetAssemblyDelimiterIndex",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Trim",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SerializeObject",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getInstanceBuilder",
+                        "excluded": true
+                    },
+                    {
+                        "name": "createInstance",
+                        "excluded": true
+                    },
+                    {
+                        "name": "needReuse",
+                        "excluded": true
+                    },
+                    {
+                        "name": "tryToGetCastOperator",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DeserializeObject",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "AssetConfig",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "inherits",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBallTexture",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.SetPropertyUtility",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "SetColor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetStruct",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetClass",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "FullscreenBackgroundFitRealtime",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Co_WatchAndFit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnRectTransformDimensionsChange",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetTargetSize",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyFit",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "GameRootPortraitAspectScaler",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "CurrentScaleFactor#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyScale",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryCacheContentPivot",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryGetContentBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CacheOriginalScale",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "OrientationWatcher",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Update",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryNotifyOrientationChange",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ComputeOrientation",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "ScreenLayoutAdapter.GameRootLayoutSettings",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UiOrientationSwitcher",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDestroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "HandleOrientationChanged",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Apply",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "System.NotImplementedException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
                         "excluded": true
                     }
                 ]

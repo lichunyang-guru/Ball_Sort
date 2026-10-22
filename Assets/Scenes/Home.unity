@@ -404,6 +404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEnableBGM: 1
   buttonColor: {r: 0.62352943, g: 0.011764706, b: 0.011764706, a: 1}
+  candleOutlineWidth: 1.5
   targetStepCount: 50
   cycleStepCount: 1
   targetCompletedTubeCount: 4

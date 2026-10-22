@@ -381,7 +381,7 @@ public class GameController : MonoBehaviour
 
     private Sprite ResolveCompletedLazhuSprite(TubeView tubeView, BallColorType color)
     {
-        if (tubeView == null || tubeView.IsLongTube
+        if (tubeView == null
             || (color != BallColorType.Black && color != BallColorType.White
                 && color != BallColorType.Green && color != BallColorType.Red)) return null;
         // 31404 / 31402 use the 31266 white template; 31400 uses the 31280 green candle.
@@ -390,6 +390,8 @@ public class GameController : MonoBehaviour
             : BallColorType.Green;
         BallVisualPalette.BallVisualEntry entry = null;
         if (ballVisualPalette != null) ballVisualPalette.TryGetVisual(candlePaletteColor, out entry);
+        if (tubeView.IsLongTube)
+            return entry != null ? entry.longLazhuSprite : null;
         return entry != null && entry.lazhuSprite != null ? entry.lazhuSprite : configuredLazhuSprite;
     }
 

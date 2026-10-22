@@ -13,6 +13,8 @@ public class BallVisualPalette : ScriptableObject
         [Tooltip("该颜色小球使用的主体 Sprite；为空时保留预制体上的默认 Sprite。")]
         public Sprite sprite;
         public Sprite lazhuSprite;
+        [Tooltip("长试管合成时使用的蜡烛 Sprite。")]
+        public Sprite longLazhuSprite;
         [Tooltip("该颜色小球选中/移动时使用的发光颜色。")]
         public Color tint = Color.white;
     }

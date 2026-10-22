@@ -595,7 +595,7 @@ public class TubeView : MonoBehaviour
             lazhuLocalBottomOffset = spriteOverride.bounds.min.y;
         }
         ApplyLazhuOutline(lazhuRenderer);
-        if (!isLongTube && spriteOverride != null
+        if (spriteOverride != null
             && (lastCompletedColor == BallColorType.Black || lastCompletedColor == BallColorType.White
                 || lastCompletedColor == BallColorType.Green || lastCompletedColor == BallColorType.Red))
         {
@@ -618,14 +618,20 @@ public class TubeView : MonoBehaviour
             return;
         }
 
-        // FullRect preserves the transparent margin needed by the outer outline.
+        // Clone the Sprite itself so packed atlas UVs still refer to the correct candle.
         if (source != outlinedLazhuSprite)
         {
             if (outlinedLazhuSprite != null) Destroy(outlinedLazhuSprite);
-            Rect rect = source.rect;
-            Vector2 pivot = new Vector2(source.pivot.x / rect.width, source.pivot.y / rect.height);
-            outlinedLazhuSprite = Sprite.Create(source.texture, rect, pivot,
-                source.pixelsPerUnit, 0, SpriteMeshType.FullRect, source.border);
+            outlinedLazhuSprite = Instantiate(source);
+            if (!source.packed)
+            {
+                Vector2 min = -source.pivot / source.pixelsPerUnit;
+                Vector2 max = (source.rect.size - source.pivot) / source.pixelsPerUnit;
+                outlinedLazhuSprite.OverrideGeometry(new[]
+                {
+                    min, new Vector2(min.x, max.y), max, new Vector2(max.x, min.y)
+                }, new ushort[] { 0, 1, 2, 0, 2, 3 });
+            }
             renderer.sprite = outlinedLazhuSprite;
         }
         if (runtimeLazhuOutlineMaterial == null)
