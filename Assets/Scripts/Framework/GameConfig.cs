@@ -1,44 +1,39 @@
-
-using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class GameConfig : MonoSingleton<GameConfig>
 {
-    [Tooltip("是否允许首次调用 PlayBGM 时播放背景音乐。")]
     public bool isEnableBGM = true;
+    [LunaPlaygroundField("按钮颜色", 0, "视觉配置")]
+    public Color buttonColor = new Color32(159, 3, 3, 255);
     [LunaPlaygroundField("每轮点击几次后跳转商店", 0, "游戏跳转参数")]
-    [Tooltip("玩家点击试管累计达到该次数后触发商店跳转。")]
-    public int targetStepCount = 20;
+    public int targetStepCount = 50;
     [LunaPlaygroundField("跳转商店几轮后，每次点击都会直接跳转", 0, "游戏跳转参数")]
-    [Tooltip("点击跳转循环轮数；递减到 0 后，每次点击都会触发商店跳转。")]
-    public int cycleStepCount = 3;
+    public int cycleStepCount = 1;
+    [FormerlySerializedAs("targetCompleteCount")]
     [LunaPlaygroundField("满管几根后跳转商店", 0, "游戏跳转参数")]
-    [Tooltip("玩家完成长管数量达到该值后触发商店跳转。")]
-    public int targetCompleteCount = 1;
-    [LunaPlaygroundField("完成第几关自动跳转", 0, "游戏跳转参数")]
-    [Tooltip("玩家通关次数达到该值后触发商店跳转。")]
+    public int targetCompletedTubeCount = 4;
     public int targetLevelCount = 1;
-    int curStepCount = 0;
-    int curCompleteCount = 0;
-    int curLevelCount = 0;
-    [LunaPlaygroundField("空闲多长时间后跳转商店", 0, "游戏跳转参数")]
-    [Tooltip("玩家空闲超过该秒数后，下一次操作会触发商店跳转。")]
     public float MaxIdleTime = 5f;
-    float curIdleTime = 0f;
-    bool isStartIdle = false;
-    bool isPlayBGM = false;
 
-    void Update()
+    private int curStepCount;
+    private int curCompletedTubeCount;
+    private int curLevelCount;
+    private float curIdleTime;
+    private bool isStartIdle;
+    private bool isPlayBGM;
+    private bool completedTubeRedirectInvoked;
+
+    private void Start()
+    {
+        ApplyLegacyButtonColors();
+    }
+
+    private void Update()
     {
         TryPlayBGMOnInput();
-
-        if (isStartIdle)
-        {
-            curIdleTime += Time.deltaTime;
-        }
+        if (isStartIdle) curIdleTime += Time.deltaTime;
     }
 
     public void AddTargetStepCount()
@@ -52,57 +47,58 @@ public class GameConfig : MonoSingleton<GameConfig>
         }
     }
 
-    public void AddTargetCompleteCount()
+    public void OnTubeCompleted()
     {
-        curCompleteCount++;
-        if (curCompleteCount >= targetCompleteCount)
-        {
-            Utils.OpenStore();
-        }
+        if (completedTubeRedirectInvoked) return;
+        curCompletedTubeCount++;
+        if (curCompletedTubeCount < Mathf.Max(1, targetCompletedTubeCount)) return;
+        completedTubeRedirectInvoked = true;
+        Utils.OpenStore();
     }
 
+    // The supplied playable records these counters but does not redirect on them.
     public void AddTargetLevelCount()
     {
         curLevelCount++;
-        if (curLevelCount >= targetLevelCount)
-        {
-            Utils.OpenStore();
-        }
     }
 
     public void OpRecord()
     {
         isStartIdle = true;
-        if (curIdleTime >= MaxIdleTime)
-        {
-            Utils.OpenStore();
-        }
         curIdleTime = 0f;
     }
 
     public void PlayBGM()
     {
-        if (isPlayBGM)
-        {
-            return;
-        }
-
+        if (isPlayBGM) return;
         if (isEnableBGM && AudioMgr.Instance != null && AudioMgr.Instance.BGM != null)
-        {
             isPlayBGM = AudioMgr.Instance.Play(AudioMgr.Instance.BGM.name, AudioMgr.AudioType.BGM, true);
-        }
     }
 
     private void TryPlayBGMOnInput()
     {
-        if (isPlayBGM || !isEnableBGM)
-        {
-            return;
-        }
+        if (Input.GetMouseButtonDown(0) || Input.touchCount > 0) PlayBGM();
+    }
 
-        if (AudioMgr.Instance != null && AudioMgr.Instance.HasReceivedScreenInput)
+    private void ApplyLegacyButtonColors()
+    {
+        // Include both orientation variants before either is first displayed.
+        foreach (Canvas canvas in FindObjectsOfType<Canvas>())
+        foreach (Button button in canvas.GetComponentsInChildren<Button>(true))
         {
-            PlayBGM();
+            if (button == null || (button.name != "Button (Legacy)" && button.name != "Button (Legacy) (1)")) continue;
+            ColorBlock colors = button.colors;
+            Color displayColor = buttonColor;
+#if !UNITY_LUNA
+            // The source Luna renderer encodes UI vertex colours from linear to sRGB.
+            displayColor = buttonColor.gamma;
+#endif
+            colors.normalColor = displayColor;
+            colors.highlightedColor = displayColor;
+            colors.pressedColor = displayColor;
+            colors.selectedColor = displayColor;
+            colors.disabledColor = displayColor;
+            button.colors = colors;
         }
     }
 }
