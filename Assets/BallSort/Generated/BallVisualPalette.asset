@@ -14,22 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entries:
   - color: 2
-    sprite: {fileID: 21300000, guid: ac0b058e0dd9c43939decaf0677cd975, type: 2}
-    lazhuSprite: {fileID: 21300000, guid: d3961c98acae04df489e9d102c9ff05e, type: 2}
+    sprite: {fileID: 21300000, guid: efc2629c137b84d3fb9840ef1f21e420, type: 3}
+    lazhuSprite: {fileID: 21300000, guid: 02c45b10ebb3943368362d7dd1942d4f, type: 3}
     tint: {r: 0.08627451, g: 0.7294118, b: 0.12941177, a: 1}
   - color: 3
-    sprite: {fileID: 21300000, guid: 9c66b62892165440899699757b5f054d, type: 2}
+    sprite: {fileID: 21300000, guid: e4539f0d1e1b848c7a8d50c2fb7d196b, type: 3}
     lazhuSprite: {fileID: 0}
     tint: {r: 0.09803922, g: 0.47843137, b: 0.8, a: 1}
   - color: 5
-    sprite: {fileID: 21300000, guid: 124bd9af9661345ef9d27b984248733f, type: 2}
+    sprite: {fileID: 21300000, guid: 346d6e1bad86840f5918f4d8a4167fe6, type: 3}
     lazhuSprite: {fileID: 0}
     tint: {r: 0.8980392, g: 0.16076297, b: 0.1215686, a: 1}
   - color: 1
-    sprite: {fileID: 21300000, guid: 24f299050832540aeb52844e77da56b4, type: 2}
-    lazhuSprite: {fileID: 21300000, guid: d3961c98acae04df489e9d102c9ff05e, type: 2}
+    sprite: {fileID: 21300000, guid: 75bd172c0b36e4c77be1d05699e1a979, type: 3}
+    lazhuSprite: {fileID: 21300000, guid: 02c45b10ebb3943368362d7dd1942d4f, type: 3}
     tint: {r: 1, g: 1, b: 1, a: 1}
   - color: 4
-    sprite: {fileID: 21300000, guid: 2a9760d22753c4ab387a9bdfb6782ea6, type: 2}
-    lazhuSprite: {fileID: 21300000, guid: 33f9ff6cdb47e4f57952a09fb66ff505, type: 2}
+    sprite: {fileID: 21300000, guid: e1c5d3b8aabf34d5c9fd9f638e99eb4f, type: 3}
+    lazhuSprite: {fileID: 21300000, guid: e842f4e7c8ce04ed9ae9c457135a3c28, type: 3}
     tint: {r: 0, g: 0, b: 0, a: 1}

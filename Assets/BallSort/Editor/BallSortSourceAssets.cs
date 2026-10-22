@@ -6,9 +6,6 @@ using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
-using Unity.Collections;
-using UnityEngine.U2D;
-using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 /// <summary>Recreates the original exported asset IDs so the scene importer can restore references.</summary>
@@ -100,14 +97,7 @@ public static class BallSortSourceAssets
             si.SaveAndReimport();
             // Keep the exported tight mesh as well as the transparent native rectangle.
             // Bounds are used by tube completion alignment and portrait framing.
-            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(pngPath);
-            float ppu = (float)item["pixelsPerUnit"];
-            Vector2 pixelPivot = new Vector2((float)item["pivot"]["x"], (float)item["pivot"]["y"]);
-            var sprite = Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(pixelPivot.x / width, pixelPivot.y / height), ppu, 0, SpriteMeshType.FullRect, Vec4(item["border"]));
-            sprite.name = (string)item["name"];
-            ApplySourceGeometry(sprite, item);
-            Save(sprite, Root + "/Sprites/" + id + ".asset");
-            map[id] = sprite;
+            map[id] = ApplySourceGeometry(pngPath, item);
         }
         foreach (var item in data["sounds"])
         {
@@ -207,7 +197,7 @@ public static class BallSortSourceAssets
             map[id] = RequireExisting<Texture2D>(path);
         }
         foreach (var item in data["sprites"])
-            map[(int)item["id"]] = RequireExisting<Sprite>(Root + "/Sprites/" + item["id"] + ".asset");
+            map[(int)item["id"]] = RequireExisting<Sprite>(Root + "/Sprites/" + item["id"] + ".png");
         foreach (var item in data["sounds"])
             map[(int)item["id"]] = RequireExisting<AudioClip>("Assets/BallSort/Audio/" + item["data"][0] + ".mp3");
         foreach (var item in data["materials"])
@@ -223,47 +213,23 @@ public static class BallSortSourceAssets
             map[(int)item["id"]] = RequireExisting<AnimatorController>(Root + "/Animations/" + item["id"] + ".controller");
         return map;
     }
-    /// <summary>Repairs mesh data in already generated sprites without reimporting textures.</summary>
+    /// <summary>Restores the source mesh in the PNG Sprite import settings.</summary>
     public static void RepairExistingGeometry(JObject data)
     {
         foreach (var item in data["sprites"])
-        {
-            var sprite = RequireExisting<Sprite>(Root + "/Sprites/" + item["id"] + ".asset");
-            ApplySourceGeometry(sprite, item);
-            EditorUtility.SetDirty(sprite);
-        }
-        AssetDatabase.SaveAssets();
+            ApplySourceGeometry(Root + "/Sprites/" + item["id"] + ".png", item);
     }
-    static void ApplySourceGeometry(Sprite sprite, JToken item)
+    static Sprite ApplySourceGeometry(string path, JToken item)
     {
-        // OverrideGeometry is restricted outside the player loop in this Editor.
-        // Use the same mesh-data API as Unity's com.unity.2d.animation SpritePostProcess.
-        // SetVertexAttribute(Position) takes local units; TexCoord0 takes normalized UVs.
         var sourceVertices = (JArray)item["vertices"];
         var sourceTriangles = (JArray)item["triangles"];
-        int count = sourceVertices.Count / 5;
-        if (count == 0 || sourceTriangles.Count == 0) return;
-        float width = (float)item["nativeSize"]["x"], height = (float)item["nativeSize"]["y"];
-        float ppu = (float)item["pixelsPerUnit"];
-        var pivot = new Vector2((float)item["pivot"]["x"], (float)item["pivot"]["y"]);
-        var positions = new NativeArray<Vector3>(count, Allocator.Temp);
-        var uvs = new NativeArray<Vector2>(count, Allocator.Temp);
-        var indices = new NativeArray<ushort>(sourceTriangles.Count, Allocator.Temp);
-        try
-        {
-            for (int i = 0; i < count; i++)
-            {
-                float x = (float)sourceVertices[i * 5], y = (float)sourceVertices[i * 5 + 1];
-                positions[i] = new Vector3(x, y, (float)sourceVertices[i * 5 + 2]);
-                uvs[i] = new Vector2((x * ppu + pivot.x) / width, (y * ppu + pivot.y) / height);
-            }
-            for (int i = 0; i < indices.Length; i++) indices[i] = (ushort)sourceTriangles[i];
-            sprite.SetVertexCount(count);
-            sprite.SetVertexAttribute<Vector3>(VertexAttribute.Position, positions);
-            sprite.SetVertexAttribute<Vector2>(VertexAttribute.TexCoord0, uvs);
-            sprite.SetIndices(indices);
-        }
-        finally { positions.Dispose(); uvs.Dispose(); indices.Dispose(); }
+        var vertices = new Vector2[sourceVertices.Count / 5];
+        var triangles = new ushort[sourceTriangles.Count];
+        for (int i = 0; i < vertices.Length; i++)
+            vertices[i] = new Vector2((float)sourceVertices[i * 5], (float)sourceVertices[i * 5 + 1]);
+        for (int i = 0; i < triangles.Length; i++) triangles[i] = (ushort)sourceTriangles[i];
+        return BallSortPngSpriteData.Write(path, (float)item["pixelsPerUnit"],
+            new Vector2((float)item["pivot"]["x"], (float)item["pivot"]["y"]), Vec4(item["border"]), vertices, triangles);
     }
     static T RequireExisting<T>(string path) where T : Object
     {
