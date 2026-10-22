@@ -7,6 +7,8 @@ public class GameConfig : MonoSingleton<GameConfig>
     public bool isEnableBGM = true;
     [LunaPlaygroundField("按钮颜色", 0, "视觉配置")]
     public Color buttonColor = new Color32(159, 3, 3, 255);
+    [LunaPlaygroundField("蜡烛白色描边大小（px，0关闭）", 0, "视觉配置")]
+    [Min(0f)] public float candleOutlineWidth = 1.5f;
     [LunaPlaygroundField("每轮点击几次后跳转商店", 0, "游戏跳转参数")]
     public int targetStepCount = 50;
     [LunaPlaygroundField("跳转商店几轮后，每次点击都会直接跳转", 0, "游戏跳转参数")]

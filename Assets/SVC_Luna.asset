@@ -215,58 +215,8 @@ MonoBehaviour:
       "\L\u2025": []
   _includedShaderVariants: []
   _excludedShaderVariants: []
-  version: 915
+  version: 965
   _shaderParsedShaders:
-  - ParsedSubShaders:
-    - Index: 0
-      Passes:
-      - Shader: {fileID: 4800000, guid: 25a270686ccc4f4a977c65d8d10d1374, type: 3}
-        ShaderVariants: []
-        DefinedKeywords:
-          "\L\u2025": []
-        KeywordGroups: []
-        KeywordsMinimalCardinality: 0
-        ContainsInvalidVariant: 0
-        VariantStructures: []
-        CompilationErrors: []
-        HasDepthReader: 0
-        Id: 0
-        SubShaderIndex: 0
-        SerializedObjectId: 0
-        Tags:
-        - Key: CanUseSpriteAtlas
-          Value: true
-        - Key: IGNOREPROJECTOR
-          Value: true
-        - Key: PreviewType
-          Value: Plane
-        - Key: QUEUE
-          Value: Transparent
-        - Key: RenderType
-          Value: Transparent
-        UsePass:
-          shader: 
-          pass: 
-        GrabPassTextureName: 
-        PlatformMask: -1
-      Shader: {fileID: 4800000, guid: 25a270686ccc4f4a977c65d8d10d1374, type: 3}
-      Tags:
-      - Key: CanUseSpriteAtlas
-        Value: true
-      - Key: IGNOREPROJECTOR
-        Value: true
-      - Key: PreviewType
-        Value: Plane
-      - Key: QUEUE
-        Value: Transparent
-      - Key: RenderType
-        Value: Transparent
-    Shader: {fileID: 4800000, guid: 25a270686ccc4f4a977c65d8d10d1374, type: 3}
-    ShaderPath: Assets/prefabs/Water/WaterBodyReveal.shader
-    ShaderDefinedKeywords: []
-    fallbackShader: {fileID: 0}
-    CompilationErrors: []
-    Variants: []
   - ParsedSubShaders:
     - Index: 0
       Passes:
@@ -703,4 +653,4 @@ MonoBehaviour:
     CompilationErrors: []
     Variants: []
   _modifiedShaders: []
-  invalidShaders: 0
+  invalidShaders: 1

@@ -75,6 +75,9 @@ public class TubeView : MonoBehaviour
     private float lazhuLocalBottomOffset;
     private bool hasInitialLazhuState;
     private Tween maskBgFadeTween;
+    private Material initialLazhuMaterial;
+    private Material runtimeLazhuOutlineMaterial;
+    private Sprite outlinedLazhuSprite;
 
     public Collider2D HitCollider => hitCollider;
     public bool IsLongTube => isLongTube;
@@ -532,6 +535,7 @@ public class TubeView : MonoBehaviour
             initialLazhuColor = lazhuRenderer.color;
             hasInitialLazhuColor = true;
             initialLazhuSprite = lazhuRenderer.sprite;
+            initialLazhuMaterial = lazhuRenderer.sharedMaterial;
             hasInitialLazhuSprite = true;
             ApplyLazhuSorting(lazhuRenderer);
 
@@ -590,6 +594,7 @@ public class TubeView : MonoBehaviour
             lazhuRenderer.sprite = spriteOverride;
             lazhuLocalBottomOffset = spriteOverride.bounds.min.y;
         }
+        ApplyLazhuOutline(lazhuRenderer);
         if (!isLongTube && spriteOverride != null
             && (lastCompletedColor == BallColorType.Black || lastCompletedColor == BallColorType.White
                 || lastCompletedColor == BallColorType.Green || lastCompletedColor == BallColorType.Red))
@@ -602,6 +607,40 @@ public class TubeView : MonoBehaviour
         lazhuRenderer.color = Mathf.Max(tint.r, Mathf.Max(tint.g, tint.b)) <= 0.01f
             ? new Color(1f, 1f, 1f, initialLazhuColor.a)
             : ResolveLazhuTint(tint);
+    }
+
+    private void ApplyLazhuOutline(SpriteRenderer renderer)
+    {
+        Material outlineMaterial = Resources.Load<Material>("CandleOutline");
+        Sprite source = renderer.sprite;
+        if (outlineMaterial == null || source == null)
+        {
+            return;
+        }
+
+        // FullRect preserves the transparent margin needed by the outer outline.
+        if (source != outlinedLazhuSprite)
+        {
+            if (outlinedLazhuSprite != null) Destroy(outlinedLazhuSprite);
+            Rect rect = source.rect;
+            Vector2 pivot = new Vector2(source.pivot.x / rect.width, source.pivot.y / rect.height);
+            outlinedLazhuSprite = Sprite.Create(source.texture, rect, pivot,
+                source.pixelsPerUnit, 0, SpriteMeshType.FullRect, source.border);
+            renderer.sprite = outlinedLazhuSprite;
+        }
+        if (runtimeLazhuOutlineMaterial == null)
+        {
+            runtimeLazhuOutlineMaterial = new Material(outlineMaterial);
+        }
+        float outlineWidth = GameConfig.Instance != null ? GameConfig.Instance.candleOutlineWidth : 1.5f;
+        runtimeLazhuOutlineMaterial.SetFloat("_OutlineWidth", Mathf.Max(0f, outlineWidth));
+        renderer.sharedMaterial = runtimeLazhuOutlineMaterial;
+    }
+
+    private void OnDestroy()
+    {
+        if (outlinedLazhuSprite != null) Destroy(outlinedLazhuSprite);
+        if (runtimeLazhuOutlineMaterial != null) Destroy(runtimeLazhuOutlineMaterial);
     }
 
     private Color ResolveLazhuTint(Color tint)
@@ -628,6 +667,9 @@ public class TubeView : MonoBehaviour
         {
             lazhuRenderer.color = initialLazhuColor;
             if (hasInitialLazhuSprite) lazhuRenderer.sprite = initialLazhuSprite;
+            lazhuRenderer.sharedMaterial = initialLazhuMaterial;
+            if (outlinedLazhuSprite != null) Destroy(outlinedLazhuSprite);
+            outlinedLazhuSprite = null;
             lazhuLocalBottomOffset = initialLazhuLocalBottomOffset;
         }
     }
