@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TubeView : MonoBehaviour
 {
+    public SpriteRenderer MaskBg;
     private const int MinimumFrontOverlaySortingOffset = 101;
     private const int TubeBackSortingGap = 2;
 
@@ -59,11 +60,13 @@ public class TubeView : MonoBehaviour
     private readonly List<BallView> runtimeBallViews = new List<BallView>();
     private Vector3 initialScale = Vector3.one;
     private Color initialTubeColor = Color.white;
+    private Color initialFrontOverlayColor = Color.white;
     private Color initialLazhuColor = Color.white;
     private Sprite initialLazhuSprite;
     private bool hasInitialLazhuSprite;
     private float initialLazhuLocalBottomOffset;
     private bool hasInitialTubeColor;
+    private bool hasInitialFrontOverlayColor;
     private bool hasInitialLazhuColor;
     private bool completedVisualApplied;
     private BallColorType lastCompletedColor = BallColorType.None;
@@ -71,6 +74,7 @@ public class TubeView : MonoBehaviour
     private Vector3 initialLazhuLocalScale = Vector3.one;
     private float lazhuLocalBottomOffset;
     private bool hasInitialLazhuState;
+    private Tween maskBgFadeTween;
 
     public Collider2D HitCollider => hitCollider;
     public bool IsLongTube => isLongTube;
@@ -108,8 +112,15 @@ public class TubeView : MonoBehaviour
             hasInitialTubeColor = true;
         }
 
+        if (frontOverlayRenderer != null)
+        {
+            initialFrontOverlayColor = frontOverlayRenderer.color;
+            hasInitialFrontOverlayColor = true;
+        }
+
         CacheLazhuState();
         HideLazhuImmediate();
+        SetMaskBgAlpha(0f);
         SetSelected(false);
     }
 
@@ -341,11 +352,9 @@ public class TubeView : MonoBehaviour
         SetSelected(false);
         ApplyLazhuTint(lazhuTint, lazhuSprite);
         ShowLazhuImmediate();
+        SetMaskBgAlpha(1f);
 
-        if (tubeRenderer != null)
-        {
-            tubeRenderer.color = completedTint;
-        }
+        ApplyCompletedTubeTransparency();
 
         for (int i = 0; i < runtimeBallViews.Count; i++)
         {
@@ -373,18 +382,17 @@ public class TubeView : MonoBehaviour
         SetSelected(false);
         ApplyLazhuTint(lazhuTint, lazhuSprite);
 
-        if (tubeRenderer != null)
-        {
-            if (!hasInitialTubeColor)
-            {
-                initialTubeColor = tubeRenderer.color;
-                hasInitialTubeColor = true;
-            }
-
-            tubeRenderer.color = completedTint;
-        }
+        ApplyCompletedTubeTransparency();
 
         Sequence completeSequence = DOTween.Sequence();
+        SetMaskBgAlpha(0f);
+        if (MaskBg != null)
+        {
+            MaskBg.gameObject.SetActive(true);
+            maskBgFadeTween = MaskBg.DOFade(1f, 0.3f)
+                .SetEase(lazhuRevealEase)
+                .SetLink(gameObject);
+        }
 
         for (int i = 0; i < runtimeBallViews.Count; i++)
         {
@@ -404,6 +412,56 @@ public class TubeView : MonoBehaviour
         return completeSequence;
     }
 
+    private void SetMaskBgAlpha(float alpha)
+    {
+        maskBgFadeTween?.Kill();
+        maskBgFadeTween = null;
+        if (MaskBg == null)
+        {
+            return;
+        }
+
+        Color color = MaskBg.color;
+        color.a = alpha;
+        MaskBg.color = color;
+        if (alpha > 0f)
+        {
+            MaskBg.gameObject.SetActive(true);
+        }
+    }
+
+    private void ApplyCompletedTubeTransparency()
+    {
+        FindTubeRenderer();
+        FindFrontOverlayRenderer();
+
+        if (tubeRenderer != null)
+        {
+            if (!hasInitialTubeColor)
+            {
+                initialTubeColor = tubeRenderer.color;
+                hasInitialTubeColor = true;
+            }
+
+            Color transparentColor = completedTint;
+            transparentColor.a = 0f;
+            tubeRenderer.color = transparentColor;
+        }
+
+        if (frontOverlayRenderer != null)
+        {
+            if (!hasInitialFrontOverlayColor)
+            {
+                initialFrontOverlayColor = frontOverlayRenderer.color;
+                hasInitialFrontOverlayColor = true;
+            }
+
+            Color transparentColor = frontOverlayRenderer.color;
+            transparentColor.a = 0f;
+            frontOverlayRenderer.color = transparentColor;
+        }
+    }
+
     public void ResetVisualState()
     {
         transform.DOKill();
@@ -411,11 +469,17 @@ public class TubeView : MonoBehaviour
         completedVisualApplied = false;
         lastCompletedColor = BallColorType.None;
         HideLazhuImmediate();
+        SetMaskBgAlpha(0f);
         SetSelected(false);
 
         if (tubeRenderer != null && hasInitialTubeColor)
         {
             tubeRenderer.color = initialTubeColor;
+        }
+
+        if (frontOverlayRenderer != null && hasInitialFrontOverlayColor)
+        {
+            frontOverlayRenderer.color = initialFrontOverlayColor;
         }
 
         ResetLazhuTint();
@@ -525,6 +589,15 @@ public class TubeView : MonoBehaviour
         {
             lazhuRenderer.sprite = spriteOverride;
             lazhuLocalBottomOffset = spriteOverride.bounds.min.y;
+        }
+        if (!isLongTube && spriteOverride != null
+            && (lastCompletedColor == BallColorType.Black || lastCompletedColor == BallColorType.White
+                || lastCompletedColor == BallColorType.Green || lastCompletedColor == BallColorType.Red))
+        {
+            // Darken the white template for black balls; preserve the white/green sprite colors otherwise.
+            float brightness = lastCompletedColor == BallColorType.Black ? 0.12f : 1f;
+            lazhuRenderer.color = new Color(brightness, brightness, brightness, initialLazhuColor.a);
+            return;
         }
         lazhuRenderer.color = Mathf.Max(tint.r, Mathf.Max(tint.g, tint.b)) <= 0.01f
             ? new Color(1f, 1f, 1f, initialLazhuColor.a)

@@ -382,15 +382,15 @@ public class GameController : MonoBehaviour
     private Sprite ResolveCompletedLazhuSprite(TubeView tubeView, BallColorType color)
     {
         if (tubeView == null || tubeView.IsLongTube
-            || (color != BallColorType.Black && color != BallColorType.White && color != BallColorType.Green)) return null;
+            || (color != BallColorType.Black && color != BallColorType.White
+                && color != BallColorType.Green && color != BallColorType.Red)) return null;
+        // 31404 / 31402 use the 31266 white template; 31400 uses the 31280 green candle.
+        BallColorType candlePaletteColor = color == BallColorType.Black || color == BallColorType.White
+            ? BallColorType.Black
+            : BallColorType.Green;
         BallVisualPalette.BallVisualEntry entry = null;
-        if (ballVisualPalette != null) ballVisualPalette.TryGetVisual(color, out entry);
-        // Black uses an already shaded candle sprite; a ball texture override must not replace it with the white template.
-        if (color == BallColorType.Black && entry != null && entry.lazhuSprite != null)
-            return entry.lazhuSprite;
-        Texture texture = AssetConfig.Instance != null ? AssetConfig.Instance.GetBallTexture(color) : null;
-        bool overridden = texture != null && (entry == null || entry.sprite == null || entry.sprite.texture != texture);
-        return overridden && configuredLazhuSprite != null ? configuredLazhuSprite : entry != null ? entry.lazhuSprite : null;
+        if (ballVisualPalette != null) ballVisualPalette.TryGetVisual(candlePaletteColor, out entry);
+        return entry != null && entry.lazhuSprite != null ? entry.lazhuSprite : configuredLazhuSprite;
     }
 
     private float ScaleGameRootDistance(float value)
