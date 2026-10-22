@@ -618,6 +618,8 @@ public class TubeView : MonoBehaviour
             return;
         }
 
+#if !UNITY_LUNA
+        // PlayWorks uses the imported FullRect sprite directly; avoid runtime Sprite cloning/geometry APIs.
         // Clone the Sprite itself so packed atlas UVs still refer to the correct candle.
         if (source != outlinedLazhuSprite)
         {
@@ -634,6 +636,7 @@ public class TubeView : MonoBehaviour
             }
             renderer.sprite = outlinedLazhuSprite;
         }
+#endif
         if (runtimeLazhuOutlineMaterial == null)
         {
             runtimeLazhuOutlineMaterial = new Material(outlineMaterial);
