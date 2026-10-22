@@ -352,7 +352,7 @@ public class TubeView : MonoBehaviour
         SetSelected(false);
         ApplyLazhuTint(lazhuTint, lazhuSprite);
         ShowLazhuImmediate();
-        SetMaskBgAlpha(1f);
+        //SetMaskBgAlpha(1f);
 
         ApplyCompletedTubeTransparency();
 
@@ -389,7 +389,7 @@ public class TubeView : MonoBehaviour
         if (MaskBg != null)
         {
             MaskBg.gameObject.SetActive(true);
-            maskBgFadeTween = MaskBg.DOFade(1f, 0.3f)
+            maskBgFadeTween = MaskBg.DOFade(1f, 0.5f)
                 .SetEase(lazhuRevealEase)
                 .SetLink(gameObject);
         }
