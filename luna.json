@@ -1,8 +1,8 @@
 {
     "version": "7.2.0",
     "projectId": "9a14ddbd688ed47209c467f14b1df537",
-    "applicationID": 39134,
-    "creativeName": "解救蜜蜂版",
+    "applicationID": 34262,
+    "creativeName": "261019_BallSort_Playable_红黑白素材万圣节满管特效及背景UI替换",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -30736,6 +30736,14 @@
                     {
                         "name": "OnDestroy",
                         "excluded": true
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyTubeOutlineColor",
+                        "excluded": false
                     }
                 ]
             },

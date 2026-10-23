@@ -127,6 +127,35 @@ public class TubeView : MonoBehaviour
         SetSelected(false);
     }
 
+    private void Start()
+    {
+        ApplyTubeOutlineColor();
+    }
+
+    private void ApplyTubeOutlineColor()
+    {
+        if (GameConfig.Instance == null) return;
+
+        Color outlineColor = GameConfig.Instance.tubeOutlineColor;
+        if (tubeRenderer != null)
+        {
+            Color color = outlineColor;
+            color.a = initialTubeColor.a;
+            initialTubeColor = color;
+            color.a = tubeRenderer.color.a;
+            tubeRenderer.color = color;
+        }
+
+        if (frontOverlayRenderer != null)
+        {
+            Color color = outlineColor;
+            color.a = initialFrontOverlayColor.a;
+            initialFrontOverlayColor = color;
+            color.a = frontOverlayRenderer.color.a;
+            frontOverlayRenderer.color = color;
+        }
+    }
+
     private void Reset()
     {
         hitCollider = GetComponent<Collider2D>();
@@ -485,6 +514,7 @@ public class TubeView : MonoBehaviour
             frontOverlayRenderer.color = initialFrontOverlayColor;
         }
 
+        ApplyTubeOutlineColor();
         ResetLazhuTint();
 
         for (int i = 0; i < runtimeBallViews.Count; i++)

@@ -404,6 +404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isEnableBGM: 1
   buttonColor: {r: 0.62352943, g: 0.011764706, b: 0.011764706, a: 1}
+  tubeOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   candleOutlineWidth: 1.5
   targetStepCount: 50
   cycleStepCount: 1
@@ -3718,7 +3719,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.00051498, y: 583.19403}
-  m_SizeDelta: {x: 720, y: 79.8583}
+  m_SizeDelta: {x: 720, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &853062196
 MonoBehaviour:
@@ -4545,7 +4546,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -0.00051498, y: 516.24}
-  m_SizeDelta: {x: 720, y: 78.8847}
+  m_SizeDelta: {x: 720, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1177946011
 MonoBehaviour:
