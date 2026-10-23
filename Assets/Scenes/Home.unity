@@ -542,7 +542,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 678, y: 576.86}
+  m_AnchoredPosition: {x: 650, y: 576.86}
   m_SizeDelta: {x: 382, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &71352461
@@ -1328,11 +1328,11 @@ MonoBehaviour:
   title1: {fileID: 853062195}
   title2: {fileID: 1177946010}
   portraitGameRootPosition: {x: 0, y: 570.9}
-  landscapeGameRootPosition: {x: -672, y: 39.929}
+  landscapeGameRootPosition: {x: -570, y: 39.929}
   portraitGameRootScale: {x: 0.25, y: 0.25, z: 0.55}
   landscapeGameRootScale: {x: 0.2, y: 0.2, z: 0.8}
   portraitTitlePosition: {x: 0, y: 500.1}
-  landscapeTitlePosition: {x: -672, y: -14.121}
+  landscapeTitlePosition: {x: -570, y: -14.121}
   portraitTitleScale: {x: 0.2, y: 0.2, z: 1}
   landscapeTitleScale: {x: 0.15, y: 0.15, z: 1}
 --- !u!114 &408007631
