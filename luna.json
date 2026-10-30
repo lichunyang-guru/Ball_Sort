@@ -1878,10 +1878,6 @@
                 "excluded": true
             },
             {
-                "name": "System.NotImplementedException",
-                "excluded": true
-            },
-            {
                 "name": "System.NotSupportedException",
                 "excluded": true
             },
@@ -8642,6 +8638,14 @@
                 "excluded": true
             },
             {
+                "name": "RTLLayout",
+                "excluded": true
+            },
+            {
+                "name": "AspectOrientation",
+                "excluded": false
+            },
+            {
                 "name": "AdaptiveScaler",
                 "excluded": true
             },
@@ -8654,20 +8658,12 @@
                 "excluded": true
             },
             {
-                "name": "RTLLayout",
-                "excluded": true
-            },
-            {
                 "name": "UIEdgeAdaptiveScaler",
                 "excluded": true
             },
             {
                 "name": "AdaptiveScaler.ScaleMode",
                 "excluded": true
-            },
-            {
-                "name": "AspectOrientation",
-                "excluded": false
             },
             {
                 "name": "GuideMaskSimple.SizeMode",
@@ -19635,7 +19631,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyFontDataChanges",
@@ -26243,7 +26239,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDidApplyAnimationProperties",
@@ -27150,11 +27146,11 @@
                         "excluded": false
                     },
                     {
-                        "name": "Start",
+                        "name": "OnTubeCompleted",
                         "excluded": false
                     },
                     {
-                        "name": "OnTubeCompleted",
+                        "name": "Start",
                         "excluded": false
                     },
                     {
@@ -30310,10 +30306,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "ResolveCompletedLazhuTint",
-                        "excluded": false
-                    },
-                    {
                         "name": "ExpandConfiguredBallPairs",
                         "excluded": false
                     },
@@ -30360,6 +30352,10 @@
                     {
                         "name": "IsTubeTransitionActive",
                         "excluded": false
+                    },
+                    {
+                        "name": "ResolveCompletedLazhuTint",
+                        "excluded": true
                     }
                 ]
             },
@@ -30690,14 +30686,6 @@
                         "excluded": true
                     },
                     {
-                        "name": "ApplyLazhuTint",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ResetLazhuTint",
-                        "excluded": false
-                    },
-                    {
                         "name": "FindFrontOverlayRenderer",
                         "excluded": false
                     },
@@ -30715,10 +30703,6 @@
                     },
                     {
                         "name": "ApplyFireEffSorting",
-                        "excluded": false
-                    },
-                    {
-                        "name": "ResolveLazhuTint",
                         "excluded": false
                     },
                     {
@@ -30759,6 +30743,18 @@
                     },
                     {
                         "name": "ShouldPlayLazhuEffect",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyLazhuTint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResolveLazhuTint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetLazhuTint",
                         "excluded": false
                     }
                 ]
@@ -34548,28 +34544,6 @@
                 ]
             },
             {
-                "className": "SpriteFillCameraWidth",
-                "staticMethods": [],
-                "instanceMethods": [
-                    {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "OnEnable",
-                        "excluded": false
-                    },
-                    {
-                        "name": "LateUpdate",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FitWidth",
-                        "excluded": false
-                    }
-                ]
-            },
-            {
                 "className": "DG.Tweening.Core.Easing.Bounce",
                 "staticMethods": [],
                 "instanceMethods": [
@@ -34802,19 +34776,19 @@
                         "excluded": false
                     },
                     {
-                        "name": "Co_WatchAndFit",
-                        "excluded": false
-                    },
-                    {
                         "name": "OnRectTransformDimensionsChange",
                         "excluded": true
                     },
                     {
-                        "name": "GetTargetSize",
+                        "name": "ApplyFit",
                         "excluded": false
                     },
                     {
-                        "name": "ApplyFit",
+                        "name": "Co_WatchAndFit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTargetSize",
                         "excluded": false
                     }
                 ]
@@ -34942,6 +34916,46 @@
                     {
                         "name": "Apply",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "System.NotImplementedException",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "SpriteFillCameraWidth",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FitWidth",
+                        "excluded": true
                     }
                 ]
             }
