@@ -339,6 +339,11 @@ public class TubeView : MonoBehaviour
         completedVisualApplied = true;
         lastCompletedColor = completedColor;
         SetSelected(false);
+        if (!ShouldPlayLazhuEffect())
+        {
+            HideLazhuImmediate();
+            return;
+        }
         ApplyLazhuTint(lazhuTint, lazhuSprite);
         ShowLazhuImmediate();
 
@@ -371,6 +376,12 @@ public class TubeView : MonoBehaviour
         lastCompletedColor = completedColor;
         completedVisualApplied = true;
         SetSelected(false);
+        if (!ShouldPlayLazhuEffect())
+        {
+            HideLazhuImmediate();
+            // The controller opens EndPanel immediately when there is no completion animation.
+            return null;
+        }
         ApplyLazhuTint(lazhuTint, lazhuSprite);
 
         if (tubeRenderer != null)
@@ -402,6 +413,11 @@ public class TubeView : MonoBehaviour
         }
 
         return completeSequence;
+    }
+
+    private bool ShouldPlayLazhuEffect()
+    {
+        return !isLongTube || GameConfig.Instance == null || GameConfig.Instance.enableLongTubeLazhuEffect;
     }
 
     public void ResetVisualState()

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 public class GameConfig : MonoSingleton<GameConfig>
 {
     public bool isEnableBGM = true;
+    [LunaPlaygroundField("长试管蜡烛合成效果", 0, "视觉配置")]
+    public bool enableLongTubeLazhuEffect = true;
     [LunaPlaygroundField("按钮颜色", 0, "视觉配置")]
     public Color buttonColor = new Color32(159, 3, 3, 255);
     [LunaPlaygroundField("每轮点击几次后跳转商店", 0, "游戏跳转参数")]
