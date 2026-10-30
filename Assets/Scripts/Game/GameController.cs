@@ -166,7 +166,7 @@ public class GameController : MonoBehaviour
     private void Update()
     {
         if (!TryGetPressedScreenPosition(out Vector2 screenPosition)) return;
-        if (Utils.HasStoreJumped) Utils.OpenStore();
+        //if (Utils.HasStoreJumped) Utils.OpenStore();
         if (gamePhase == GamePhase.Win || introDropInProgress) return;
 
         if (!TryRaycastTube(screenPosition, out TubeView tubeView))
