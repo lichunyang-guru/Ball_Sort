@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class TubeView : MonoBehaviour
 {
-    public SpriteRenderer MaskBg;
     private const int MinimumFrontOverlaySortingOffset = 101;
     private const int TubeBackSortingGap = 2;
 
@@ -45,10 +44,6 @@ public class TubeView : MonoBehaviour
     [SerializeField] private int frontOverlaySortingOffset = MinimumFrontOverlaySortingOffset;
     [Tooltip("蜡烛相对前景 SpriteRenderer 的排序提升值。")]
     [SerializeField] private int lazhuSortingOffset = 1;
-    [Tooltip("蜡烛染色亮度倍率，避免使用小球颜色时过暗。")]
-    [SerializeField] private float lazhuTintBrightness = 1.35f;
-    [Tooltip("蜡烛染色每个颜色通道的最低亮度。")]
-    [SerializeField] private float lazhuTintMinChannel = 0.18f;
     [Tooltip("蜡烛自底向上展示的动画时长。")]
     [SerializeField] private float lazhuRevealDuration = 0.35f;
     [Tooltip("蜡烛展示动画缓动。")]
@@ -74,7 +69,6 @@ public class TubeView : MonoBehaviour
     private Vector3 initialLazhuLocalScale = Vector3.one;
     private float lazhuLocalBottomOffset;
     private bool hasInitialLazhuState;
-    private Tween maskBgFadeTween;
     private Material initialLazhuMaterial;
     private Material runtimeLazhuOutlineMaterial;
     private Sprite outlinedLazhuSprite;
@@ -123,7 +117,6 @@ public class TubeView : MonoBehaviour
 
         CacheLazhuState();
         HideLazhuImmediate();
-        SetMaskBgAlpha(0f);
         SetSelected(false);
     }
 
@@ -374,17 +367,16 @@ public class TubeView : MonoBehaviour
 
     public void SetCompletedVisualImmediate()
     {
-        SetCompletedVisualImmediate(BallColorType.None, Color.white);
+        SetCompletedVisualImmediate(BallColorType.None);
     }
 
-    public void SetCompletedVisualImmediate(BallColorType completedColor, Color lazhuTint, Sprite lazhuSprite = null)
+    public void SetCompletedVisualImmediate(BallColorType completedColor, Sprite lazhuSprite = null)
     {
         completedVisualApplied = true;
         lastCompletedColor = completedColor;
         SetSelected(false);
-        ApplyLazhuTint(lazhuTint, lazhuSprite);
+        ApplyLazhuVisual(lazhuSprite);
         ShowLazhuImmediate();
-        //SetMaskBgAlpha(1f);
 
         ApplyCompletedTubeTransparency();
 
@@ -397,7 +389,7 @@ public class TubeView : MonoBehaviour
         }
     }
 
-    public Sequence PlayCompletedAnimation(BallColorType completedColor, Color lazhuTint, Sprite lazhuSprite = null)
+    public Sequence PlayCompletedAnimation(BallColorType completedColor, Sprite lazhuSprite = null)
     {
         if (AudioMgr.Instance != null)
         {
@@ -412,20 +404,11 @@ public class TubeView : MonoBehaviour
         lastCompletedColor = completedColor;
         completedVisualApplied = true;
         SetSelected(false);
-        ApplyLazhuTint(lazhuTint, lazhuSprite);
+        ApplyLazhuVisual(lazhuSprite);
 
         ApplyCompletedTubeTransparency();
 
         Sequence completeSequence = DOTween.Sequence();
-        SetMaskBgAlpha(0f);
-        if (MaskBg != null)
-        {
-            MaskBg.gameObject.SetActive(true);
-            maskBgFadeTween = MaskBg.DOFade(1f, 0.5f)
-                .SetEase(lazhuRevealEase)
-                .SetLink(gameObject);
-        }
-
         for (int i = 0; i < runtimeBallViews.Count; i++)
         {
             if (runtimeBallViews[i] != null)
@@ -442,24 +425,6 @@ public class TubeView : MonoBehaviour
         }
 
         return completeSequence;
-    }
-
-    private void SetMaskBgAlpha(float alpha)
-    {
-        maskBgFadeTween?.Kill();
-        maskBgFadeTween = null;
-        if (MaskBg == null)
-        {
-            return;
-        }
-
-        Color color = MaskBg.color;
-        color.a = alpha;
-        MaskBg.color = color;
-        if (alpha > 0f)
-        {
-            MaskBg.gameObject.SetActive(true);
-        }
     }
 
     private void ApplyCompletedTubeTransparency()
@@ -501,7 +466,6 @@ public class TubeView : MonoBehaviour
         completedVisualApplied = false;
         lastCompletedColor = BallColorType.None;
         HideLazhuImmediate();
-        SetMaskBgAlpha(0f);
         SetSelected(false);
 
         if (tubeRenderer != null && hasInitialTubeColor)
@@ -515,7 +479,7 @@ public class TubeView : MonoBehaviour
         }
 
         ApplyTubeOutlineColor();
-        ResetLazhuTint();
+        ResetLazhuVisual();
 
         for (int i = 0; i < runtimeBallViews.Count; i++)
         {
@@ -596,7 +560,7 @@ public class TubeView : MonoBehaviour
         lazhu.gameObject.SetActive(false);
     }
 
-    private void ApplyLazhuTint(Color tint, Sprite spriteOverride = null)
+    private void ApplyLazhuVisual(Sprite spriteOverride = null)
     {
         if (!hasInitialLazhuState)
         {
@@ -625,18 +589,6 @@ public class TubeView : MonoBehaviour
             lazhuLocalBottomOffset = spriteOverride.bounds.min.y;
         }
         ApplyLazhuOutline(lazhuRenderer);
-        if (spriteOverride != null
-            && (lastCompletedColor == BallColorType.Black || lastCompletedColor == BallColorType.White
-                || lastCompletedColor == BallColorType.Green || lastCompletedColor == BallColorType.Red))
-        {
-            // Darken the white template for black balls; preserve the white/green sprite colors otherwise.
-            float brightness = lastCompletedColor == BallColorType.Black ? 0.12f : 1f;
-            lazhuRenderer.color = new Color(brightness, brightness, brightness, initialLazhuColor.a);
-            return;
-        }
-        lazhuRenderer.color = Mathf.Max(tint.r, Mathf.Max(tint.g, tint.b)) <= 0.01f
-            ? new Color(1f, 1f, 1f, initialLazhuColor.a)
-            : ResolveLazhuTint(tint);
     }
 
     private void ApplyLazhuOutline(SpriteRenderer renderer)
@@ -682,19 +634,7 @@ public class TubeView : MonoBehaviour
         if (runtimeLazhuOutlineMaterial != null) Destroy(runtimeLazhuOutlineMaterial);
     }
 
-    private Color ResolveLazhuTint(Color tint)
-    {
-        float brightness = Mathf.Max(0f, lazhuTintBrightness);
-        float minChannel = Mathf.Clamp01(lazhuTintMinChannel);
-
-        tint.r = Mathf.Clamp01(Mathf.Max(tint.r * brightness, minChannel));
-        tint.g = Mathf.Clamp01(Mathf.Max(tint.g * brightness, minChannel));
-        tint.b = Mathf.Clamp01(Mathf.Max(tint.b * brightness, minChannel));
-        tint.a = initialLazhuColor.a;
-        return tint;
-    }
-
-    private void ResetLazhuTint()
+    private void ResetLazhuVisual()
     {
         if (lazhu == null || !hasInitialLazhuColor)
         {

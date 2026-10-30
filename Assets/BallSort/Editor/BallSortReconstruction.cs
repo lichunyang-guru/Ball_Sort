@@ -54,7 +54,7 @@ public static class BallSortReconstruction
             var nodes=Flatten(data["scenes"][0]["objects"]).ToList();
             CreateNodes(nodes);ApplyNodes(nodes);
             var camera=(Camera)refs[82374]; camera.tag="MainCamera";camera.transform.localScale=Vector3.one;camera.ResetAspect();
-            var config=(GameConfig)refs[82130];config.targetStepCount=50;config.cycleStepCount=1;config.targetCompletedTubeCount=4;config.buttonColor=new Color32(159,3,3,255);
+            var config=(GameConfig)refs[82130];config.targetStepCount=50;config.cycleStepCount=1;config.targetCompletedTubeCount=4;
             // Built-in sprite materials do not require illumination; retain a conventional scene light.
             var lightObject=new GameObject("Directional Light");var light=lightObject.AddComponent<Light>();light.type=LightType.Directional;light.intensity=1;light.enabled=false;
             foreach(var node in nodes) ((GameObject)refs[(int)node["id"]]).SetActive((bool?)node["enabled"]??true);

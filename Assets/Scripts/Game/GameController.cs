@@ -265,7 +265,7 @@ public class GameController : MonoBehaviour
             if (model.IsCompleted && !shouldPlayIntroDrop)
             {
                 BallColorType completedColor = model.TopColor;
-                entry.tubeView.SetCompletedVisualImmediate(completedColor, ResolveCompletedLazhuTint(completedColor), ResolveCompletedLazhuSprite(entry.tubeView, completedColor));
+                entry.tubeView.SetCompletedVisualImmediate(completedColor, ResolveCompletedLazhuSprite(entry.tubeView, completedColor));
             }
         }
 
@@ -484,7 +484,7 @@ public class GameController : MonoBehaviour
                 && state.tubeView != null)
             {
                 BallColorType completedColor = state.model.TopColor;
-                state.tubeView.SetCompletedVisualImmediate(completedColor, ResolveCompletedLazhuTint(completedColor), ResolveCompletedLazhuSprite(state.tubeView, completedColor));
+                state.tubeView.SetCompletedVisualImmediate(completedColor, ResolveCompletedLazhuSprite(state.tubeView, completedColor));
             }
         }
 
@@ -923,7 +923,6 @@ public class GameController : MonoBehaviour
             // 满管后的完成动画独立播放，不阻塞后续操作。
             preparedMove.targetView.PlayCompletedAnimation(
                 preparedMove.move.Color,
-                ResolveCompletedLazhuTint(preparedMove.move.Color),
                 ResolveCompletedLazhuSprite(preparedMove.targetView, preparedMove.move.Color));
         }
 
@@ -1017,18 +1016,6 @@ public class GameController : MonoBehaviour
             sourceView = sourceView,
             sourceModel = sourceModel
         };
-    }
-
-    private Color ResolveCompletedLazhuTint(BallColorType completedColor)
-    {
-        if (ballVisualPalette != null
-            && ballVisualPalette.TryGetVisual(completedColor, out BallVisualPalette.BallVisualEntry entry)
-            && entry != null)
-        {
-            return entry.tint;
-        }
-
-        return Color.white;
     }
 
     private static List<BallView> GetMoveOrderedTopBalls(TubeView sourceView, TubeView targetView, int count)

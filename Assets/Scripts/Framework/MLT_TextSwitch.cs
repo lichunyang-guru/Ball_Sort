@@ -10,16 +10,18 @@ public class MLT_TextSwitch : MonoBehaviour
     [System.Serializable]
     public class LanguageText
     {
-        [Tooltip("这条文本对应的系统语言。")]
         public SystemLanguage language;
         [TextArea]
-        [Tooltip("该语言下显示的文本内容。")]
         public string text;
     }
 
     [Header("语言文本配置")]
-    [Tooltip("按语言配置的文本列表；找不到系统语言时优先回退到英语，再回退到第一条。")]
     public List<LanguageText> languageTexts = new List<LanguageText>();
+
+    [Header("JSON导入配置")]
+    [Tooltip("直接粘贴多语言JSON文本，可在Inspector里一键读取到 languageTexts。")]
+    [TextArea(6, 20)]
+    public string translationJsonText;
 
     private Text txt;
 
@@ -34,7 +36,7 @@ public class MLT_TextSwitch : MonoBehaviour
     {
         // 获取当前系统语言
         SystemLanguage currentLang = GameLanguageManager.Instance.CurrentLanguage;
-        
+
         // 查找对应语言的文本
         foreach (var langText in languageTexts)
         {
@@ -44,7 +46,7 @@ public class MLT_TextSwitch : MonoBehaviour
                 return;
             }
         }
-        
+
         // 如果没有找到对应语言，尝试使用英语
         foreach (var langText in languageTexts)
         {
@@ -54,7 +56,7 @@ public class MLT_TextSwitch : MonoBehaviour
                 return;
             }
         }
-        
+
         // 如果连英语都没有，使用第一个可用的文本
         if (languageTexts.Count > 0)
         {

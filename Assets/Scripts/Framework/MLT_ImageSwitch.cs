@@ -9,29 +9,21 @@ public class MLT_ImageSwitch : MonoBehaviour
     [Serializable]
     public class LanguageImageSettings
     {
-        [Tooltip("这条图片配置对应的系统语言。")]
         public SystemLanguage language;
         [Header("图像设置")]
-        [Tooltip("该语言下显示的 Sprite。")]
         public Sprite sprite;
-        [Tooltip("是否保持图片原始宽高比。")]
         public bool preserveAspect = false;
-        [Tooltip("Image 组件的显示类型，例如 Simple、Sliced、Filled。")]
         public Image.Type imageType = Image.Type.Simple;
         
         [Header("RectTransform设置（可选）")]
-        [Tooltip("是否在切换到该语言时覆盖 RectTransform 的尺寸。")]
         public bool overrideSize = false;
-        [Tooltip("启用覆盖尺寸时使用的 sizeDelta。")]
         public Vector2 sizeDelta;
         
         [Header("材质设置（可选）")]
-        [Tooltip("该语言图片需要使用的材质；为空时保留当前材质。")]
         public Material material;
     }
     
     [Header("语言图像配置")]
-    [Tooltip("按语言配置的图片列表；找不到系统语言时优先回退到英语，再回退到第一条。")]
     public List<LanguageImageSettings> languageImages = new List<LanguageImageSettings>();
     
     private Image image;

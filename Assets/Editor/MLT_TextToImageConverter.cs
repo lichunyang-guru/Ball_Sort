@@ -18,18 +18,18 @@ public class MLT_TextToImageConverter : EditorWindow
     private string progressMessage = "";
     private string outputPath = "Assets/Textures/GeneratedTextImages";
     private int imageScale = 1; // 图片缩放倍数
-    private Color backgroundColor = new Color(0, 0, 0, 0); // 透明背景
+    private Color backgroundColor = new Color(1, 1, 1, 0); // 透明背景
     private int padding = 10; // 文本周围的内边距
     private TextAnchor textAnchor = TextAnchor.MiddleCenter;
     private bool antiAliasing = true;
     private TextureFormat textureFormat = TextureFormat.RGBA32;
     private bool compressTexture = true;
-    private int maxTextureSize = 256; // 最大纹理尺寸
+    private int maxTextureSize = 2048; // 最大纹理尺寸
     private bool isNativeSize = false;
     private bool isUseTextSize = false;
 
     [System.Serializable]
-    private class TextToImageItem
+    public class TextToImageItem
     {
         public GameObject gameObject;
         public Text textComponent;
@@ -58,7 +58,7 @@ public class MLT_TextToImageConverter : EditorWindow
             }
 
             textSwitch = obj.GetComponent<MLT_TextSwitch>();
-            imageSwitch = obj.GetComponent<MLT_ImageSwitch>();
+            imageSwitch = MLT_TextToImageConverter.FindImageSwitchForTextObject(obj);
             selected = true;
             gameObjectPath = GetGameObjectPath(obj);
 
@@ -441,67 +441,36 @@ public class MLT_TextToImageConverter : EditorWindow
             tempGO.layer = 5; // UI Layer
             tempGO.transform.SetParent(tempCanvas.transform, false);
 
-            // 复制原始Text组件的设置
-            var tempText = tempGO.AddComponent<Text>();
-            CopyTextSettings(item.textComponent, tempText);
+            // 使用源Text的实际类型，兼容NewText或其它Text子类，不硬依赖具体组件。
+            var tempText = AddCompatibleTextComponent(tempGO, item.textComponent);
+            CopyCompatibleTextSettings(item.textComponent, tempText);
             tempText.text = processedText;
             tempText.alignment = textAnchor;
 
             // 设置RectTransform
             var rect = tempGO.GetComponent<RectTransform>();
-            rect.sizeDelta = item.textComponent.rectTransform.sizeDelta * imageScale;
+            rect.sizeDelta = GetScaledTextRectSize(item.textComponent);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = Vector2.zero;
 
-            // 强制更新Canvas和文本以获取准确的preferredSize
+            // 强制更新Canvas和文本，先拿到一个足够安全的渲染区域。
             Canvas.ForceUpdateCanvases();
             tempText.SetAllDirty();
 
-            // 使用更精确的方法计算文本实际尺寸
             Vector2 preferredSize = new Vector2(
                 tempText.preferredWidth,
                 tempText.preferredHeight
             );
+            Vector2 renderSize = GetSafeRenderSize(rect.sizeDelta, preferredSize);
+            int renderWidth = Mathf.CeilToInt(renderSize.x);
+            int renderHeight = Mathf.CeilToInt(renderSize.y);
 
-            // 如果preferredSize仍然无效，使用TextGenerator计算
-            if (preferredSize.x <= 0 || preferredSize.y <= 0)
-            {
-                var textGen = tempText.cachedTextGenerator;
-                textGen.Populate(tempText.text, tempText.GetGenerationSettings(rect.rect.size));
-                var bounds = GetTextBounds(textGen);
-                preferredSize = new Vector2(bounds.width, bounds.height);
-            }
-
-            // 如果preferredSize还是无效，使用RectTransform的尺寸
-            if (preferredSize.x <= 0 || preferredSize.y <= 0)
-            {
-                preferredSize = rect.sizeDelta;
-            }
-
-            // 计算最终纹理尺寸（加上padding）
-            int width = Mathf.CeilToInt(preferredSize.x) + padding * 2;
-            int height = Mathf.CeilToInt(preferredSize.y) + padding * 2;
-
-            Debug.Log($"Text size: {preferredSize}, Texture size: {width}x{height}");
-
-            // 限制最大尺寸，确保文本不会被裁剪
-            if (width > maxTextureSize || height > maxTextureSize)
-            {
-                // 计算保持宽高比的缩放因子
-                float scale = Mathf.Min((float)maxTextureSize / width, (float)maxTextureSize / height);
-
-                // 按比例缩放尺寸
-                width = Mathf.CeilToInt(width * scale);
-                height = Mathf.CeilToInt(height * scale);
-
-                // 同时按比例缩放文本字体大小
-                if (tempText != null)
-                {
-                    tempText.fontSize = Mathf.Max(1, Mathf.RoundToInt(tempText.fontSize * scale));
-                }
-            }
+            Debug.Log($"Text size: {preferredSize}, RenderTexture size: {renderWidth}x{renderHeight}, Component: {tempText.GetType().Name}");
 
             // 创建RenderTexture
-            renderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
+            renderTexture = new RenderTexture(renderWidth, renderHeight, 24, RenderTextureFormat.ARGB32);
             renderTexture.antiAliasing = antiAliasing ? 4 : 1;
 
             // 创建相机用于渲染
@@ -510,7 +479,7 @@ public class MLT_TextToImageConverter : EditorWindow
             var camera = tempCameraGO.AddComponent<Camera>();
             camera.targetTexture = renderTexture;
             camera.orthographic = true;
-            camera.orthographicSize = height / 2f;
+            camera.orthographicSize = renderHeight / 2f;
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = backgroundColor;
             camera.cullingMask = 1 << 5; // UI Layer
@@ -518,7 +487,7 @@ public class MLT_TextToImageConverter : EditorWindow
             // 设置Canvas为世界空间以确保正确渲染
             canvas.renderMode = RenderMode.WorldSpace;
             var canvasRect = canvas.GetComponent<RectTransform>();
-            canvasRect.sizeDelta = new Vector2(width, height);
+            canvasRect.sizeDelta = new Vector2(renderWidth, renderHeight);
             canvasRect.anchoredPosition = Vector2.zero;
 
             // 设置相机参数以正确覆盖Canvas
@@ -526,43 +495,9 @@ public class MLT_TextToImageConverter : EditorWindow
             tempCameraGO.transform.LookAt(Vector3.zero);
 
             // 调整正交相机大小以紧密覆盖Canvas
-            camera.orthographicSize = height / 2f;
-            camera.aspect = (float)width / height;
-
-            // 调整文本位置到Canvas左下角，然后居中显示
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            camera.orthographicSize = renderHeight / 2f;
+            camera.aspect = (float)renderWidth / renderHeight;
             rect.anchoredPosition = Vector2.zero;
-
-            // 根据文本对齐方式调整文本位置
-            switch (tempText.alignment)
-            {
-                case TextAnchor.UpperLeft:
-                case TextAnchor.MiddleLeft:
-                case TextAnchor.LowerLeft:
-                    rect.pivot = new Vector2(0, 0.5f);
-                    rect.anchorMin = new Vector2(0, 0.5f);
-                    rect.anchorMax = new Vector2(0, 0.5f);
-                    rect.anchoredPosition = new Vector2(padding, 0);
-                    break;
-                case TextAnchor.UpperCenter:
-                case TextAnchor.MiddleCenter:
-                case TextAnchor.LowerCenter:
-                    rect.pivot = new Vector2(0.5f, 0.5f);
-                    rect.anchorMin = new Vector2(0.5f, 0.5f);
-                    rect.anchorMax = new Vector2(0.5f, 0.5f);
-                    rect.anchoredPosition = Vector2.zero;
-                    break;
-                case TextAnchor.UpperRight:
-                case TextAnchor.MiddleRight:
-                case TextAnchor.LowerRight:
-                    rect.pivot = new Vector2(1, 0.5f);
-                    rect.anchorMin = new Vector2(1, 0.5f);
-                    rect.anchorMax = new Vector2(1, 0.5f);
-                    rect.anchoredPosition = new Vector2(-padding, 0);
-                    break;
-            }
 
             // 确保文本有内容
             Debug.Log($"Rendering text: '{tempText.text}', Color: {tempText.color}");
@@ -570,9 +505,6 @@ public class MLT_TextToImageConverter : EditorWindow
             // 强制更新Canvas和文本
             Canvas.ForceUpdateCanvases();
             tempText.SetAllDirty();
-
-            // 手动触发文本生成
-            tempText.cachedTextGenerator.Populate(tempText.text, tempText.GetGenerationSettings(rect.rect.size));
 
             // 再次更新以确保所有更改生效
             Canvas.ForceUpdateCanvases();
@@ -585,80 +517,23 @@ public class MLT_TextToImageConverter : EditorWindow
             // 渲染
             camera.Render();
 
-            // 检查渲染结果，如果大部分是透明的，尝试优化
-            Texture2D texture = null;
-
             // 从RenderTexture创建Texture2D
-            texture = new Texture2D(width, height, textureFormat, false);
+            Texture2D texture = new Texture2D(renderWidth, renderHeight, textureFormat, false);
             RenderTexture.active = renderTexture;
-            texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            texture.ReadPixels(new Rect(0, 0, renderWidth, renderHeight), 0, 0);
             texture.Apply();
             RenderTexture.active = null;
 
-            // 检查图片内容，如果透明区域过多则尝试优化
-            if (IsTextureMostlyTransparent(texture))
-            {
-                Debug.Log("检测到图片透明区域过多，尝试优化布局...");
-                // 销毁之前创建的texture
+            Texture2D outputTexture = CropToVisiblePixels(texture);
+            if (outputTexture != texture)
                 DestroyImmediate(texture);
 
-                // 重新计算更紧密的边界
-                var textGen = tempText.cachedTextGenerator;
-                var bounds = GetTextBounds(textGen);
+            texture = LimitTextureSize(outputTexture);
+            if (texture != outputTexture)
+                DestroyImmediate(outputTexture);
 
-                // 使用更紧密的尺寸
-                int tightWidth = Mathf.CeilToInt(bounds.width) + padding * 2;
-                int tightHeight = Mathf.CeilToInt(bounds.height) + padding * 2;
-
-                // 限制最大尺寸，确保文本不会被裁剪
-                float scale = 1f;
-                if (tightWidth > maxTextureSize || tightHeight > maxTextureSize)
-                {
-                    // 计算保持宽高比的缩放因子
-                    scale = Mathf.Min((float)maxTextureSize / tightWidth, (float)maxTextureSize / tightHeight);
-                    tightWidth = Mathf.CeilToInt(tightWidth * scale);
-                    tightHeight = Mathf.CeilToInt(tightHeight * scale);
-
-                    // 同时按比例缩放文本字体大小
-                    if (tempText != null)
-                    {
-                        tempText.fontSize = Mathf.Max(1, Mathf.RoundToInt(tempText.fontSize * scale));
-                    }
-                }
-
-                // 重新创建RenderTexture
-                if (renderTexture != null) DestroyImmediate(renderTexture);
-                renderTexture = new RenderTexture(tightWidth, tightHeight, 24, RenderTextureFormat.ARGB32);
-                renderTexture.antiAliasing = antiAliasing ? 4 : 1;
-                camera.targetTexture = renderTexture;
-
-                // 调整相机设置
-                camera.orthographicSize = tightHeight / 2f;
-                camera.aspect = (float)tightWidth / tightHeight;
-
-                // 调整Canvas尺寸
-                canvasRect.sizeDelta = new Vector2(tightWidth, tightHeight);
-
-                // 重新渲染
-                camera.Render();
-
-                // 重新创建texture
-                texture = new Texture2D(tightWidth, tightHeight, textureFormat, false);
-                RenderTexture.active = renderTexture;
-                texture.ReadPixels(new Rect(0, 0, tightWidth, tightHeight), 0, 0);
-                texture.Apply();
-                RenderTexture.active = null;
-
-                // 更新尺寸变量
-                width = tightWidth;
-                height = tightHeight;
-
-                Debug.Log($"优化后尺寸: {width}x{height}");
-            }
-            RenderTexture.active = renderTexture;
-            texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-            texture.Apply();
-            RenderTexture.active = null;
+            int width = texture.width;
+            int height = texture.height;
 
             // 使用Text组件的GameObject完整路径作为基础创建唯一文件夹名
             string sanitizedPath = SanitizeFileName(item.gameObjectPath);
@@ -734,11 +609,167 @@ public class MLT_TextToImageConverter : EditorWindow
         finally
         {
             // 清理临时对象
+            if (tempCameraGO != null)
+            {
+                var tempCamera = tempCameraGO.GetComponent<Camera>();
+                if (tempCamera != null)
+                    tempCamera.targetTexture = null;
+            }
+
             if (tempGO != null) DestroyImmediate(tempGO);
             if (tempCanvas != null) DestroyImmediate(tempCanvas);
             if (tempCameraGO != null) DestroyImmediate(tempCameraGO);
             if (renderTexture != null) DestroyImmediate(renderTexture);
         }
+    }
+
+    private Text AddCompatibleTextComponent(GameObject targetObject, Text source)
+    {
+        Type sourceType = source.GetType();
+        if (sourceType != typeof(Text) && typeof(Text).IsAssignableFrom(sourceType) && !sourceType.IsAbstract)
+        {
+            try
+            {
+                Text compatibleText = targetObject.AddComponent(sourceType) as Text;
+                if (compatibleText != null)
+                    return compatibleText;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"创建临时{sourceType.Name}失败，回退到Text: {ex.Message}");
+            }
+        }
+
+        return targetObject.AddComponent<Text>();
+    }
+
+    private Vector2 GetScaledTextRectSize(Text source)
+    {
+        RectTransform sourceRect = source.rectTransform;
+        Vector2 size = sourceRect.rect.size;
+        if (size.x <= 0 || size.y <= 0)
+            size = sourceRect.sizeDelta;
+
+        size.x = Mathf.Max(1, Mathf.Abs(size.x) * imageScale);
+        size.y = Mathf.Max(1, Mathf.Abs(size.y) * imageScale);
+        return size;
+    }
+
+    private Vector2 GetSafeRenderSize(Vector2 rectSize, Vector2 preferredSize)
+    {
+        float width = Mathf.Max(rectSize.x, preferredSize.x, 1);
+        float height = Mathf.Max(rectSize.y, preferredSize.y, 1);
+
+        // 给Overflow、Shadow、Outline和子类自定义网格留出余量，最终再按真实像素裁剪。
+        int safePadding = Mathf.Max(padding * 4, 32);
+        width += safePadding * 2;
+        height += safePadding * 2;
+
+        return new Vector2(Mathf.Ceil(width), Mathf.Ceil(height));
+    }
+
+    private Texture2D CropToVisiblePixels(Texture2D source)
+    {
+        if (source == null || backgroundColor.a > 0.001f)
+            return source;
+
+        if (!TryGetVisiblePixelBounds(source, out RectInt bounds))
+            return source;
+
+        int xMin = Mathf.Max(0, bounds.xMin - padding);
+        int yMin = Mathf.Max(0, bounds.yMin - padding);
+        int xMax = Mathf.Min(source.width, bounds.xMax + padding);
+        int yMax = Mathf.Min(source.height, bounds.yMax + padding);
+        int width = Mathf.Max(1, xMax - xMin);
+        int height = Mathf.Max(1, yMax - yMin);
+
+        if (width == source.width && height == source.height)
+            return source;
+
+        Texture2D cropped = new Texture2D(width, height, textureFormat, false);
+        cropped.SetPixels(source.GetPixels(xMin, yMin, width, height));
+        cropped.Apply();
+        return cropped;
+    }
+
+    private bool TryGetVisiblePixelBounds(Texture2D texture, out RectInt bounds)
+    {
+        const byte alphaThreshold = 2;
+        Color32[] pixels = texture.GetPixels32();
+
+        int minX = texture.width;
+        int minY = texture.height;
+        int maxX = -1;
+        int maxY = -1;
+
+        for (int y = 0; y < texture.height; y++)
+        {
+            int rowOffset = y * texture.width;
+            for (int x = 0; x < texture.width; x++)
+            {
+                if (pixels[rowOffset + x].a <= alphaThreshold)
+                    continue;
+
+                minX = Mathf.Min(minX, x);
+                minY = Mathf.Min(minY, y);
+                maxX = Mathf.Max(maxX, x + 1);
+                maxY = Mathf.Max(maxY, y + 1);
+            }
+        }
+
+        if (maxX < 0 || maxY < 0)
+        {
+            bounds = new RectInt(0, 0, texture.width, texture.height);
+            return false;
+        }
+
+        bounds = new RectInt(minX, minY, maxX - minX, maxY - minY);
+        return true;
+    }
+
+    private Texture2D LimitTextureSize(Texture2D source)
+    {
+        int sourceMax = Mathf.Max(source.width, source.height);
+        if (sourceMax <= maxTextureSize)
+            return source;
+
+        float scale = (float)maxTextureSize / sourceMax;
+        int width = Mathf.Max(1, Mathf.RoundToInt(source.width * scale));
+        int height = Mathf.Max(1, Mathf.RoundToInt(source.height * scale));
+
+        RenderTexture previousActive = RenderTexture.active;
+        RenderTexture scaledRT = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
+        try
+        {
+            Graphics.Blit(source, scaledRT);
+            Texture2D scaled = new Texture2D(width, height, textureFormat, false);
+            RenderTexture.active = scaledRT;
+            scaled.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            scaled.Apply();
+            return scaled;
+        }
+        finally
+        {
+            RenderTexture.active = previousActive;
+            RenderTexture.ReleaseTemporary(scaledRT);
+        }
+    }
+
+    private void CopyCompatibleTextSettings(Text source, Text target)
+    {
+        if (source.GetType() == target.GetType())
+        {
+            try
+            {
+                EditorJsonUtility.FromJsonOverwrite(EditorJsonUtility.ToJson(source), target);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"复制{source.GetType().Name}序列化字段失败，仅复制Text基础设置: {ex.Message}");
+            }
+        }
+
+        CopyTextSettings(source, target);
     }
 
     private void CopyTextSettings(Text source, Text target)
@@ -804,45 +835,6 @@ public class MLT_TextToImageConverter : EditorWindow
         }
     }
 
-    private Rect GetTextBounds(TextGenerator textGen)
-    {
-        if (textGen == null || textGen.characterCount == 0 || textGen.verts.Count == 0)
-        {
-            Debug.LogWarning("TextGenerator is empty or null, using default bounds");
-            return new Rect(0, 0, 200, 100); // 默认大小
-        }
-
-        float minX = float.MaxValue;
-        float maxX = float.MinValue;
-        float minY = float.MaxValue;
-        float maxY = float.MinValue;
-
-        var verts = textGen.verts;
-        int vertCount = Mathf.Min(verts.Count, textGen.characterCountVisible * 4);
-
-        for (int i = 0; i < vertCount; i++)
-        {
-            var vert = verts[i];
-            minX = Mathf.Min(minX, vert.position.x);
-            maxX = Mathf.Max(maxX, vert.position.x);
-            minY = Mathf.Min(minY, vert.position.y);
-            maxY = Mathf.Max(maxY, vert.position.y);
-        }
-
-        // 确保有有效的边界
-        if (minX == float.MaxValue || maxX == float.MinValue)
-        {
-            Debug.LogWarning("Invalid text bounds calculated, using default");
-            return new Rect(0, 0, 200, 100);
-        }
-
-        float width = maxX - minX;
-        float height = maxY - minY;
-
-        // 添加一些padding以确保文本不会被裁剪
-        return new Rect(minX - 2, minY - 2, width + 4, height + 4);
-    }
-
     private string SanitizeFileName(string fileName)
     {
         // 移除非法字符
@@ -851,39 +843,6 @@ public class MLT_TextToImageConverter : EditorWindow
             fileName = fileName.Replace(c, '_');
         }
         return fileName;
-    }
-
-    private bool IsTextureMostlyTransparent(Texture2D texture)
-    {
-        if (texture == null) return false;
-
-        // 采样纹理的几个关键点来检查透明度
-        int width = texture.width;
-        int height = texture.height;
-
-        // 检查角点
-        Color[] corners = {
-            texture.GetPixel(0, 0),
-            texture.GetPixel(width - 1, 0),
-            texture.GetPixel(0, height - 1),
-            texture.GetPixel(width - 1, height - 1)
-        };
-
-        // 检查中心点
-        Color center = texture.GetPixel(width / 2, height / 2);
-
-        // 计算平均透明度
-        float totalAlpha = 0;
-        foreach (var color in corners)
-        {
-            totalAlpha += color.a;
-        }
-        totalAlpha += center.a;
-
-        float averageAlpha = totalAlpha / 5;
-
-        // 如果平均透明度低于阈值，认为图片大部分是透明的
-        return averageAlpha < 0.1f;
     }
 
     /// <summary>
@@ -1074,39 +1033,20 @@ public class MLT_TextToImageConverter : EditorWindow
 
             // 检查是否已有MLT_ImageSwitch组件
             if (item.imageSwitch == null)
+                item.imageSwitch = FindImageSwitchForTextObject(item.gameObject);
+
+            if (item.imageSwitch == null)
             {
-                // 创建一个新的GameObject来放置MLT_ImageSwitch组件，而不是替换Text组件
-                GameObject imageSwitchGO = new GameObject($"{item.gameObject.name}_ImageSwitch");
-                if (item.gameObject.transform.parent != null)
-                {
-                    imageSwitchGO.transform.SetParent(item.gameObject.transform.parent, false);
-                }
-                imageSwitchGO.transform.localPosition = item.gameObject.transform.localPosition;
-                imageSwitchGO.transform.localRotation = item.gameObject.transform.localRotation;
-                imageSwitchGO.transform.localScale = item.gameObject.transform.localScale;
+                // 创建到目标Text子级，方便后续一起调整文本与生成图片的位置。
+                GameObject imageSwitchGO = CreateImageSwitchObject(item);
 
                 // 添加Image组件
-                var image = imageSwitchGO.AddComponent<UnityEngine.UI.Image>();
+                var image = imageSwitchGO.GetComponent<UnityEngine.UI.Image>();
                 if (image == null)
                 {
                     Debug.LogError($"无法为 {item.gameObject.name} 添加Image组件");
                     GameObject.DestroyImmediate(imageSwitchGO);
                     return;
-                }
-
-                // 设置Image组件的尺寸与原始Text组件一致
-                if (item.textComponent != null)
-                {
-                    var textRectTransform = item.textComponent.GetComponent<RectTransform>();
-                    var imageRectTransform = image.GetComponent<RectTransform>();
-                    if (textRectTransform != null && imageRectTransform != null)
-                    {
-                        imageRectTransform.sizeDelta = textRectTransform.sizeDelta;
-                        imageRectTransform.anchorMin = textRectTransform.anchorMin;
-                        imageRectTransform.anchorMax = textRectTransform.anchorMax;
-                        imageRectTransform.pivot = textRectTransform.pivot;
-                        imageRectTransform.anchoredPosition = textRectTransform.anchoredPosition;
-                    }
                 }
 
                 // 添加MLT_ImageSwitch组件
@@ -1118,7 +1058,13 @@ public class MLT_TextToImageConverter : EditorWindow
                     return;
                 }
 
-                Debug.Log($"为 {item.gameObject.name} 创建了新的ImageSwitch GameObject");
+                Debug.Log($"为 {item.gameObject.name} 创建了新的ImageSwitch子对象");
+            }
+            else
+            {
+                EnsureImageSwitchUnderText(item);
+                if (item.imageSwitch.GetComponent<UnityEngine.UI.Image>() == null)
+                    item.imageSwitch.gameObject.AddComponent<UnityEngine.UI.Image>();
             }
 
             // 检查item.imageSwitch是否为null
@@ -1145,5 +1091,108 @@ public class MLT_TextToImageConverter : EditorWindow
         {
             Debug.LogError($"SetupImageSwitch 失败: {item?.gameObject?.name}\n{e.Message}\n{e.StackTrace}");
         }
+    }
+
+    private static MLT_ImageSwitch FindImageSwitchForTextObject(GameObject textObject)
+    {
+        if (textObject == null)
+            return null;
+
+        string generatedName = $"{textObject.name}_ImageSwitch";
+
+        MLT_ImageSwitch imageSwitch = FindDirectChildImageSwitch(textObject.transform, generatedName);
+        if (imageSwitch != null)
+            return imageSwitch;
+
+        Transform parent = textObject.transform.parent;
+        if (parent != null)
+        {
+            imageSwitch = FindNamedImageSwitch(parent, generatedName, textObject.transform);
+            if (imageSwitch != null)
+                return imageSwitch;
+        }
+
+        return null;
+    }
+
+    private static MLT_ImageSwitch FindDirectChildImageSwitch(Transform textTransform, string generatedName)
+    {
+        Transform namedChild = textTransform.Find(generatedName);
+        if (namedChild != null && namedChild.TryGetComponent(out MLT_ImageSwitch namedSwitch))
+            return namedSwitch;
+
+        foreach (Transform child in textTransform)
+        {
+            if (child.TryGetComponent(out MLT_ImageSwitch childSwitch))
+                return childSwitch;
+        }
+
+        return null;
+    }
+
+    private static MLT_ImageSwitch FindNamedImageSwitch(Transform parent, string generatedName, Transform excludedTransform)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child == excludedTransform || !child.name.StartsWith(generatedName, StringComparison.Ordinal))
+                continue;
+
+            if (child.TryGetComponent(out MLT_ImageSwitch imageSwitch))
+                return imageSwitch;
+        }
+
+        return null;
+    }
+
+    private static GameObject CreateImageSwitchObject(TextToImageItem item)
+    {
+        GameObject imageSwitchGO = new GameObject(
+            $"{item.gameObject.name}_ImageSwitch",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(UnityEngine.UI.Image));
+
+        imageSwitchGO.transform.SetParent(item.gameObject.transform, false);
+        GameObjectUtility.EnsureUniqueNameForSibling(imageSwitchGO);
+        ResetImageSwitchRect(item.textComponent, imageSwitchGO.GetComponent<RectTransform>());
+        return imageSwitchGO;
+    }
+
+    private static void EnsureImageSwitchUnderText(TextToImageItem item)
+    {
+        if (item.imageSwitch == null || item.gameObject == null)
+            return;
+
+        Transform imageSwitchTransform = item.imageSwitch.transform;
+        if (imageSwitchTransform != item.gameObject.transform && imageSwitchTransform.parent != item.gameObject.transform)
+            imageSwitchTransform.SetParent(item.gameObject.transform, false);
+
+        ResetImageSwitchRect(item.textComponent, item.imageSwitch.GetComponent<RectTransform>());
+    }
+
+    private static void ResetImageSwitchRect(Text textComponent, RectTransform imageRectTransform)
+    {
+        if (imageRectTransform == null)
+            return;
+
+        imageRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        imageRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        imageRectTransform.pivot = new Vector2(0.5f, 0.5f);
+        imageRectTransform.anchoredPosition = Vector2.zero;
+        imageRectTransform.localRotation = Quaternion.identity;
+        imageRectTransform.localScale = Vector3.one;
+        imageRectTransform.sizeDelta = GetTextRectSize(textComponent);
+    }
+
+    private static Vector2 GetTextRectSize(Text textComponent)
+    {
+        if (textComponent == null || textComponent.rectTransform == null)
+            return Vector2.zero;
+
+        Vector2 size = textComponent.rectTransform.rect.size;
+        if (size.x <= 0 || size.y <= 0)
+            size = textComponent.rectTransform.sizeDelta;
+
+        return size;
     }
 }

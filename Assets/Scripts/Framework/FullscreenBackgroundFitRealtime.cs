@@ -1,136 +1,225 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
-[RequireComponent(typeof(Image))]
 [DisallowMultipleComponent]
 public class FullscreenBackgroundFitRealtime : MonoBehaviour
 {
-    private Image _image;
-    private RectTransform _selfRT;
-    private RectTransform _rootCanvasRT;
-
-    private Vector2 _lastTargetSize;
-    private Sprite _lastSprite;
-
-    // 可选：限制最大检查帧率（例如每帧检查即可，开销很小；如需更省，可改为0.1s一次）
+    [Header("通用设置")]
     [SerializeField] private bool checkEveryFrame = true;
+
+    [Header("SpriteRenderer 设置")]
+    [Tooltip("留空时自动使用 Main Camera")]
+    [SerializeField] private Camera targetCamera;
+
+    private readonly WaitForSeconds checkInterval = new WaitForSeconds(0.1f);
+
+    private Image image;
+    private RectTransform selfRectTransform;
+    private RectTransform rootCanvasRectTransform;
+
+    private SpriteRenderer spriteRenderer;
+    private Camera activeCamera;
+
+    private Vector2 lastTargetSize;
+    private Sprite lastSprite;
 
     private void Awake()
     {
-        _image = GetComponent<Image>();
-        _selfRT = GetComponent<RectTransform>();
+        image = GetComponent<Image>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
-        var canvas = GetComponentInParent<Canvas>();
-        if (canvas != null)
+        if (image != null)
         {
-            // 使用 rootCanvas 的 RectTransform 作为基准区域
-            var root = canvas.rootCanvas;
-            _rootCanvasRT = root != null ? root.GetComponent<RectTransform>() : canvas.GetComponent<RectTransform>();
+            InitializeImage();
+            return;
         }
 
-        // 保持比例，不让Image自身做不必要的缩放
-        _image.preserveAspect = true;
+        if (spriteRenderer != null)
+        {
+            ResolveCamera();
+            return;
+        }
 
-        // 由我们完全控制尺寸，不使用 SetNativeSize
-        // _image.SetNativeSize(); // 移除
-
-        // 统一居中对齐，避免锚点干扰覆盖逻辑
-        _selfRT.anchorMin = new Vector2(0.5f, 0.5f);
-        _selfRT.anchorMax = new Vector2(0.5f, 0.5f);
-        _selfRT.pivot = new Vector2(0.5f, 0.5f);
-        _selfRT.anchoredPosition = Vector2.zero;
+        Debug.LogWarning("FullscreenBackgroundFitRealtime 需要 Image 或 SpriteRenderer 组件。", this);
     }
 
     private void OnEnable()
     {
-        StartCoroutine(Co_WatchAndFit());
-        // 初次应用
-        ApplyFit(force: true);
+        if (image == null && spriteRenderer != null)
+            ResolveCamera();
+
+        StartCoroutine(WatchAndFit());
+        ApplyFit(true);
     }
 
-    private IEnumerator Co_WatchAndFit()
+    private void InitializeImage()
     {
-        // 在编辑器下，Game 窗口 Free Aspect 或拖拽缩放时，用协程轮询最稳妥
+        selfRectTransform = GetComponent<RectTransform>();
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas != null)
+        {
+            // 使用根 Canvas 的 UI 空间作为覆盖区域。
+            Canvas rootCanvas = canvas.rootCanvas;
+            rootCanvasRectTransform = rootCanvas != null
+                ? rootCanvas.GetComponent<RectTransform>()
+                : canvas.GetComponent<RectTransform>();
+        }
+
+        image.preserveAspect = true;
+
+        // 固定中心锚点，使超出屏幕的部分向四周均匀裁切。
+        selfRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        selfRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        selfRectTransform.pivot = new Vector2(0.5f, 0.5f);
+        selfRectTransform.anchoredPosition = Vector2.zero;
+    }
+
+    private void ResolveCamera()
+    {
+        activeCamera = targetCamera != null ? targetCamera : Camera.main;
+    }
+
+    private IEnumerator WatchAndFit()
+    {
         while (enabled && gameObject.activeInHierarchy)
         {
             ApplyFit();
-
-            if (checkEveryFrame)
-                yield return null; // 每帧检测
-            else
-                yield return new WaitForSeconds(0.1f); // 降低频率
+            yield return checkEveryFrame ? null : checkInterval;
         }
     }
 
     private void OnRectTransformDimensionsChange()
     {
-        // UI 变化时也尝试更新（大多数情况下协程已覆盖，这里作为补充）
-        ApplyFit();
-    }
-
-    private Vector2 GetTargetSize()
-    {
-        // 优先使用根 Canvas 的 UI 空间尺寸
-        if (_rootCanvasRT != null)
-        {
-            var size = _rootCanvasRT.rect.size;
-            if (size.x > 0 && size.y > 0)
-                return size;
-        }
-
-        // 退化为屏幕像素分辨率
-        return new Vector2(Screen.width, Screen.height);
+        // RectTransform 回调可能早于 Awake，此处需要先确认初始化已完成。
+        if (image != null && selfRectTransform != null)
+            ApplyFit();
     }
 
     private void ApplyFit(bool force = false)
     {
-        var sp = _image != null ? _image.sprite : null;
-        if (sp == null) return;
+        // 同一对象同时存在两个组件时优先处理 UI Image，避免重复控制 Transform。
+        if (image != null)
+        {
+            ApplyImageFit(force);
+            return;
+        }
 
-        Vector2 targetSize = GetTargetSize();
-        if (targetSize.x <= 0f || targetSize.y <= 0f) return;
+        if (spriteRenderer != null)
+            ApplySpriteRendererFit(force);
+    }
 
-        // 若尺寸与资源均未变化，则不重复计算
-        if (!force && _lastTargetSize == targetSize && _lastSprite == sp)
+    private void ApplyImageFit(bool force)
+    {
+        Sprite sprite = image.sprite;
+        if (sprite == null)
             return;
 
-        _lastTargetSize = targetSize;
-        _lastSprite = sp;
+        Vector2 targetSize = GetImageTargetSize();
+        if (targetSize.x <= 0f || targetSize.y <= 0f)
+            return;
 
-        // 原始图片像素尺寸（使用 sprite rect 尺寸而非 texture 尺寸更精确）
-        Rect sr = sp.rect;
-        float imgW = sr.width;
-        float imgH = sr.height;
+        if (!force && lastTargetSize == targetSize && lastSprite == sprite)
+            return;
 
-        if (imgW <= 0f || imgH <= 0f) return;
+        Vector2 fittedSize = CalculateCoverSize(targetSize, sprite.rect.size);
+        if (fittedSize.x <= 0f || fittedSize.y <= 0f)
+            return;
 
-        float targetAspect = targetSize.x / targetSize.y;
-        float imageAspect = imgW / imgH;
+        lastTargetSize = targetSize;
+        lastSprite = sprite;
 
-        // 覆盖策略：保证至少一边“完全覆盖”
-        // - 若目标更宽（targetAspect > imageAspect），优先拉满宽度
-        // - 否则优先拉满高度
-        float finalW, finalH;
+        selfRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, fittedSize.x);
+        selfRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, fittedSize.y);
+        selfRectTransform.anchoredPosition = Vector2.zero;
+    }
 
-        if (targetAspect > imageAspect)
+    private Vector2 GetImageTargetSize()
+    {
+        if (rootCanvasRectTransform != null)
         {
-            // 屏幕更宽：先匹配宽度，横屏必然拉满
-            finalW = targetSize.x;
-            finalH = finalW / imageAspect;
-        }
-        else
-        {
-            // 屏幕更窄或等宽：先匹配高度
-            finalH = targetSize.y;
-            finalW = finalH * imageAspect;
+            Vector2 canvasSize = rootCanvasRectTransform.rect.size;
+            if (canvasSize.x > 0f && canvasSize.y > 0f)
+                return canvasSize;
         }
 
-        // 应用到 RectTransform 尺寸（UI 单位）
-        _selfRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, finalW);
-        _selfRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, finalH);
+        return new Vector2(Screen.width, Screen.height);
+    }
 
-        // 居中（裁切在四边对称分布）
-        _selfRT.anchoredPosition = Vector2.zero;
+    private void ApplySpriteRendererFit(bool force)
+    {
+        Sprite sprite = spriteRenderer.sprite;
+        if (sprite == null)
+            return;
+
+        if (targetCamera != null && activeCamera != targetCamera)
+            activeCamera = targetCamera;
+        else if (activeCamera == null)
+            ResolveCamera();
+
+        if (activeCamera == null)
+            return;
+
+        Transform selfTransform = spriteRenderer.transform;
+        float distance = Vector3.Dot(
+            selfTransform.position - activeCamera.transform.position,
+            activeCamera.transform.forward);
+
+        if (distance <= 0f)
+            return;
+
+        Vector3 bottomLeft = activeCamera.ViewportToWorldPoint(new Vector3(0f, 0f, distance));
+        Vector3 topRight = activeCamera.ViewportToWorldPoint(new Vector3(1f, 1f, distance));
+        Vector3 center = activeCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, distance));
+
+        Vector2 targetSize = new Vector2(
+            Vector3.Project(topRight - bottomLeft, activeCamera.transform.right).magnitude,
+            Vector3.Project(topRight - bottomLeft, activeCamera.transform.up).magnitude);
+
+        Vector3 spriteBoundsSize = sprite.bounds.size;
+        Vector2 spriteSize = spriteRenderer.drawMode == SpriteDrawMode.Simple
+            ? new Vector2(spriteBoundsSize.x, spriteBoundsSize.y)
+            : spriteRenderer.size;
+
+        if (targetSize.x <= 0f || targetSize.y <= 0f || spriteSize.x <= 0f || spriteSize.y <= 0f)
+            return;
+
+        Transform parent = selfTransform.parent;
+        Vector3 parentScale = parent != null ? parent.lossyScale : Vector3.one;
+        float parentScaleX = Mathf.Abs(parentScale.x);
+        float parentScaleY = Mathf.Abs(parentScale.y);
+        if (parentScaleX <= Mathf.Epsilon || parentScaleY <= Mathf.Epsilon)
+            return;
+
+        float coverScale = Mathf.Max(targetSize.x / spriteSize.x, targetSize.y / spriteSize.y);
+        Vector3 currentScale = selfTransform.localScale;
+        Vector3 fittedScale = new Vector3(
+            coverScale / parentScaleX,
+            coverScale / parentScaleY,
+            currentScale.z);
+
+        // 保留背景所在深度，只移动到当前相机视口中心。
+        bool positionChanged = (selfTransform.position - center).sqrMagnitude > 0.000001f;
+        bool scaleChanged = (currentScale - fittedScale).sqrMagnitude > 0.000001f;
+        bool sourceChanged = force || lastTargetSize != targetSize || lastSprite != sprite;
+
+        if (positionChanged)
+            selfTransform.position = center;
+
+        if (sourceChanged || scaleChanged)
+            selfTransform.localScale = fittedScale;
+
+        lastTargetSize = targetSize;
+        lastSprite = sprite;
+    }
+
+    private static Vector2 CalculateCoverSize(Vector2 targetSize, Vector2 sourceSize)
+    {
+        if (targetSize.x <= 0f || targetSize.y <= 0f || sourceSize.x <= 0f || sourceSize.y <= 0f)
+            return Vector2.zero;
+
+        float coverScale = Mathf.Max(targetSize.x / sourceSize.x, targetSize.y / sourceSize.y);
+        return sourceSize * coverScale;
     }
 }
