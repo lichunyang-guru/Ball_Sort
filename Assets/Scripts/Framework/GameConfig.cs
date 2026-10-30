@@ -1,12 +1,9 @@
 using UnityEngine;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 public class GameConfig : MonoSingleton<GameConfig>
 {
     public bool isEnableBGM = true;
-    [LunaPlaygroundField("按钮颜色", 0, "视觉配置")]
-    public Color buttonColor = new Color32(159, 3, 3, 255);
     [LunaPlaygroundField("试管描边颜色", 0, "视觉配置")]
     public Color tubeOutlineColor = Color.white;
     [LunaPlaygroundField("蜡烛白色描边大小（px，0关闭）", 0, "视觉配置")]
@@ -28,11 +25,6 @@ public class GameConfig : MonoSingleton<GameConfig>
     private bool isStartIdle;
     private bool isPlayBGM;
     private bool completedTubeRedirectInvoked;
-
-    private void Start()
-    {
-        ApplyLegacyButtonColors();
-    }
 
     private void Update()
     {
@@ -84,25 +76,4 @@ public class GameConfig : MonoSingleton<GameConfig>
         if (Input.GetMouseButtonDown(0) || Input.touchCount > 0) PlayBGM();
     }
 
-    private void ApplyLegacyButtonColors()
-    {
-        // Include both orientation variants before either is first displayed.
-        foreach (Canvas canvas in FindObjectsOfType<Canvas>())
-        foreach (Button button in canvas.GetComponentsInChildren<Button>(true))
-        {
-            if (button == null || (button.name != "Button (Legacy)" && button.name != "Button (Legacy) (1)")) continue;
-            ColorBlock colors = button.colors;
-            Color displayColor = buttonColor;
-#if !UNITY_LUNA
-            // The source Luna renderer encodes UI vertex colours from linear to sRGB.
-            displayColor = buttonColor.gamma;
-#endif
-            colors.normalColor = displayColor;
-            colors.highlightedColor = displayColor;
-            colors.pressedColor = displayColor;
-            colors.selectedColor = displayColor;
-            colors.disabledColor = displayColor;
-            button.colors = colors;
-        }
-    }
 }

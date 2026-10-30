@@ -403,7 +403,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isEnableBGM: 1
-  buttonColor: {r: 0.62352943, g: 0.011764706, b: 0.011764706, a: 1}
   tubeOutlineColor: {r: 1, g: 1, b: 1, a: 1}
   candleOutlineWidth: 1.5
   targetStepCount: 50
@@ -5787,6 +5786,7 @@ GameObject:
   - component: {fileID: 1363208005}
   - component: {fileID: 1363208004}
   - component: {fileID: 1363208006}
+  - component: {fileID: 1363208007}
   m_Layer: 5
   m_Name: Text (Legacy) (1)
   m_TagString: Untagged
@@ -5810,7 +5810,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -191.9}
+  m_AnchoredPosition: {x: 0, y: -193}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1363208004
@@ -5868,6 +5868,130 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boldStrength: 1
+--- !u!114 &1363208007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1363208002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f9205579c3440279820de33163ea4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  languageTexts:
+  - language: 40
+    text: "\u4E0B\u4E00\u5173"
+  - language: 0
+    text: Volgende Vlak
+  - language: 1
+    text: "\u0627\u0644\u0645\u0633\u062A\u0648\u0649 \u0627\u0644\u062A\u0627\u0644\u064A"
+  - language: 2
+    text: Hurrengo maila
+  - language: 3
+    text: "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u044B \u045E\u0437\u0440\u043E\u0432\u0435\u043D\u044C"
+  - language: 4
+    text: "\u0421\u043B\u0435\u0434\u0432\u0430\u0449\u043E \u043D\u0438\u0432\u043E"
+  - language: 5
+    text: "Seg\xFCent nivell"
+  - language: 6
+    text: "\u4E0B\u4E00\u95DC"
+  - language: 41
+    text: "\u4E0B\u4E00\u95DC"
+  - language: 7
+    text: "Dal\u0161\xED \xFArove\u0148"
+  - language: 8
+    text: "N\xE6ste niveau"
+  - language: 9
+    text: Volgend niveau
+  - language: 10
+    text: Next Level
+  - language: 11
+    text: "J\xE4rgmine tase"
+  - language: 12
+    text: "N\xE6sta stig"
+  - language: 13
+    text: Seuraava taso
+  - language: 14
+    text: Niveau suivant
+  - language: 15
+    text: "N\xE4chstes Level"
+  - language: 16
+    text: "\u0395\u03C0\u03CC\u03BC\u03B5\u03BD\u03BF \u03B5\u03C0\u03AF\u03C0\u03B5\u03B4\u03BF"
+  - language: 17
+    text: "\u05E9\u05DC\u05D1 \u05D4\u05D1\u05D0"
+  - language: 18
+    text: "K\xF6vetkez\u0151 szint"
+  - language: 19
+    text: "N\xE6sta stig"
+  - language: 20
+    text: Level Berikutnya
+  - language: 21
+    text: Livello successivo
+  - language: 22
+    text: "\u6B21\u306E\u30B9\u30C6\u30FC\u30B8"
+  - language: 23
+    text: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0"
+  - language: 24
+    text: "N\u0101kamais l\u012Bmenis"
+  - language: 25
+    text: Kitas lygis
+  - language: 26
+    text: "Neste niv\xE5"
+  - language: 27
+    text: "Nast\u0119pny poziom"
+  - language: 28
+    text: "Pr\xF3ximo n\xEDvel"
+  - language: 29
+    text: "Nivelul urm\u0103tor"
+  - language: 30
+    text: "\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C"
+  - language: 31
+    text: "Slede\u0107i nivo"
+  - language: 32
+    text: "\u010Eal\u0161ia \xFArove\u0148"
+  - language: 33
+    text: Naslednja stopnja
+  - language: 34
+    text: Siguiente nivel
+  - language: 35
+    text: "N\xE4sta niv\xE5"
+  - language: 36
+    text: "\u0E14\u0E48\u0E32\u0E19\u0E15\u0E48\u0E2D\u0E44\u0E1B"
+  - language: 37
+    text: Sonraki Seviye
+  - language: 38
+    text: "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0440\u0456\u0432\u0435\u043D\u044C"
+  - language: 39
+    text: "M\xE0n ti\u1EBFp theo"
+  - language: 42
+    text: "\u0905\u0917\u0932\u093E \u0938\u094D\u0924\u0930"
+  translationJsonText: "{\"Afrikaans\": \"Volgende Vlak\", \"Arabic\": \"\u0627\u0644\u0645\u0633\u062A\u0648\u0649
+    \u0627\u0644\u062A\u0627\u0644\u064A\", \"Basque\": \"Hurrengo maila\", \"Belarusian\":
+    \"\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u044B \u045E\u0437\u0440\u043E\u0432\u0435\u043D\u044C\",
+    \"Bulgarian\": \"\u0421\u043B\u0435\u0434\u0432\u0430\u0449\u043E \u043D\u0438\u0432\u043E\",
+    \"Catalan\": \"Seg\xFCent nivell\", \"Chinese\": \"\u4E0B\u4E00\u95DC\", \"ChineseSimplified\":
+    \"\u4E0B\u4E00\u5173\", \"ChineseTraditional\": \"\u4E0B\u4E00\u95DC\", \"Czech\":
+    \"Dal\u0161\xED \xFArove\u0148\", \"Danish\": \"N\xE6ste niveau\", \"Dutch\":
+    \"Volgend niveau\", \"English\": \"Next Level\", \"Estonian\": \"J\xE4rgmine
+    tase\", \"Faroese\": \"N\xE6sta stig\", \"Finnish\": \"Seuraava taso\", \"French\":
+    \"Niveau suivant\", \"German\": \"N\xE4chstes Level\", \"Greek\": \"\u0395\u03C0\u03CC\u03BC\u03B5\u03BD\u03BF
+    \u03B5\u03C0\u03AF\u03C0\u03B5\u03B4\u03BF\", \"Hebrew\": \"\u05E9\u05DC\u05D1
+    \u05D4\u05D1\u05D0\", \"Hungarian\": \"K\xF6vetkez\u0151 szint\", \"Icelandic\":
+    \"N\xE6sta stig\", \"Indonesian\": \"Level Berikutnya\", \"Italian\": \"Livello
+    successivo\", \"Japanese\": \"\u6B21\u306E\u30B9\u30C6\u30FC\u30B8\", \"Korean\":
+    \"\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\", \"Latvian\": \"N\u0101kamais l\u012Bmenis\",
+    \"Lithuanian\": \"Kitas lygis\", \"Norwegian\": \"Neste niv\xE5\", \"Polish\":
+    \"Nast\u0119pny poziom\", \"Portuguese\": \"Pr\xF3ximo n\xEDvel\", \"Romanian\":
+    \"Nivelul urm\u0103tor\", \"Russian\": \"\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439
+    \u0443\u0440\u043E\u0432\u0435\u043D\u044C\", \"SerboCroatian\": \"Slede\u0107i
+    nivo\", \"Slovak\": \"\u010Eal\u0161ia \xFArove\u0148\", \"Slovenian\": \"Naslednja
+    stopnja\", \"Spanish\": \"Siguiente nivel\", \"Swedish\": \"N\xE4sta niv\xE5\",
+    \"Thai\": \"\u0E14\u0E48\u0E32\u0E19\u0E15\u0E48\u0E2D\u0E44\u0E1B\", \"Turkish\":
+    \"Sonraki Seviye\", \"Ukrainian\": \"\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439
+    \u0440\u0456\u0432\u0435\u043D\u044C\", \"Vietnamese\": \"M\xE0n ti\u1EBFp theo\",
+    \"Hindi\": \"\u0905\u0917\u0932\u093E \u0938\u094D\u0924\u0930\"}"
 --- !u!1001 &1372558787
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6915,6 +7039,7 @@ GameObject:
   - component: {fileID: 1690178658}
   - component: {fileID: 1690178657}
   - component: {fileID: 1690178659}
+  - component: {fileID: 1690178660}
   m_Layer: 5
   m_Name: Text (Legacy)
   m_TagString: Untagged
@@ -6954,7 +7079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.99607843, g: 0.75686276, b: 0.25490198, a: 1}
+  m_Color: {r: 0.58431375, g: 0.21568628, b: 0.05882353, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6996,6 +7121,139 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boldStrength: 1
+--- !u!114 &1690178660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690178655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f9205579c3440279820de33163ea4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  languageTexts:
+  - language: 40
+    text: "\u611F\u6069\u8282\u5FEB\u4E50"
+  - language: 0
+    text: Gelukkige Dankfees
+  - language: 1
+    text: "\u0639\u064A\u062F \u0634\u0643\u0631 \u0633\u0639\u064A\u062F"
+  - language: 2
+    text: Eskerrak emateko egun on
+  - language: 3
+    text: "\u0417 \u0414\u043D\u0451\u043C \u041F\u0430\u0434\u0437\u044F\u043A\u0456"
+  - language: 4
+    text: "\u0427\u0435\u0441\u0442\u0438\u0442 \u0414\u0435\u043D \u043D\u0430 \u0411\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u043D\u043E\u0441\u0442\u0442\u0430"
+  - language: 5
+    text: "Feli\xE7 Dia d'Acci\xF3 de Gr\xE0cies"
+  - language: 6
+    text: "\u611F\u6069\u7BC0\u5FEB\u6A02"
+  - language: 41
+    text: "\u611F\u6069\u7BC0\u5FEB\u6A02"
+  - language: 7
+    text: "\u0160\u0165astn\xFD Den d\xEDk\u016Fvzd\xE1n\xED"
+  - language: 8
+    text: God Thanksgiving
+  - language: 9
+    text: Gelukkige Thanksgiving
+  - language: 10
+    text: Happy Thanksgiving
+  - language: 11
+    text: "Head t\xE4nup\xFCha"
+  - language: 12
+    text: "G\xF3\xF0 takkadagur"
+  - language: 13
+    text: "Hyv\xE4\xE4 kiitosp\xE4iv\xE4\xE4"
+  - language: 14
+    text: Joyeux Thanksgiving
+  - language: 15
+    text: Frohes Erntedankfest
+  - language: 16
+    text: "\u03A7\u03C1\u03CC\u03BD\u03B9\u03B1 \u03A0\u03BF\u03BB\u03BB\u03AC \u03B3\u03B9\u03B1
+      \u03C4\u03B7\u03BD \u0397\u03BC\u03AD\u03C1\u03B1 \u03C4\u03C9\u03BD \u0395\u03C5\u03C7\u03B1\u03C1\u03B9\u03C3\u03C4\u03B9\u03CE\u03BD"
+  - language: 17
+    text: "\u05D7\u05D2 \u05D4\u05D5\u05D3\u05D9\u05D4 \u05E9\u05DE\u05D7"
+  - language: 18
+    text: "Boldog H\xE1laad\xE1s Napj\xE1t"
+  - language: 19
+    text: "Gle\xF0ilegan \xFEakkargj\xF6r\xF0ardag"
+  - language: 20
+    text: Selamat Hari Thanksgiving
+  - language: 21
+    text: Buon Giorno del Ringraziamento
+  - language: 22
+    text: "\u611F\u8B1D\u796D\u304A\u3081\u3067\u3068\u3046"
+  - language: 23
+    text: "\uCD94\uC218\uAC10\uC0AC\uC808 \uCD95\uD558\uD574\uC694"
+  - language: 24
+    text: "Laim\u012Bgu Pateic\u012Bbas dienu"
+  - language: 25
+    text: "Laimingos Pad\u0117kos dienos"
+  - language: 26
+    text: God Thanksgiving
+  - language: 27
+    text: "Szcz\u0119\u015Bliwego \u015Awi\u0119ta Dzi\u0119kczynienia"
+  - language: 28
+    text: "Feliz Dia de A\xE7\xE3o de Gra\xE7as"
+  - language: 29
+    text: "Ziua Recuno\u0219tin\u021Bei Fericit\u0103"
+  - language: 30
+    text: "\u0421 \u0414\u043D\u0451\u043C \u0411\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u0435\u043D\u0438\u044F"
+  - language: 31
+    text: Sretan Dan zahvalnosti
+  - language: 32
+    text: "\u0160\u0165astn\xFD De\u0148 v\u010Fakyvzdania"
+  - language: 33
+    text: Vesel dan zahvale
+  - language: 34
+    text: "Feliz D\xEDa de Acci\xF3n de Gracias"
+  - language: 35
+    text: Glad Thanksgiving
+  - language: 36
+    text: "\u0E2A\u0E38\u0E02\u0E2A\u0E31\u0E19\u0E15\u0E4C\u0E27\u0E31\u0E19\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E1E\u0E23\u0E30\u0E40\u0E08\u0E49\u0E32"
+  - language: 37
+    text: "\u015E\xFCkran G\xFCn\xFC Kutlu Olsun"
+  - language: 38
+    text: "\u0417 \u0414\u043D\u0435\u043C \u041F\u043E\u0434\u044F\u043A\u0438"
+  - language: 39
+    text: "Ch\xFAc M\u1EEBng L\u1EC5 T\u1EA1 \u01A0n"
+  - language: 42
+    text: "\u0927\u0928\u094D\u092F\u0935\u093E\u0926 \u0926\u093F\u0935\u0938 \u0915\u0940
+      \u0936\u0941\u092D\u0915\u093E\u092E\u0928\u093E\u090F\u0902"
+  translationJsonText: "{\"Afrikaans\": \"Gelukkige Dankfees\", \"Arabic\": \"\u0639\u064A\u062F
+    \u0634\u0643\u0631 \u0633\u0639\u064A\u062F\", \"Basque\": \"Eskerrak emateko
+    egun on\", \"Belarusian\": \"\u0417 \u0414\u043D\u0451\u043C \u041F\u0430\u0434\u0437\u044F\u043A\u0456\",
+    \"Bulgarian\": \"\u0427\u0435\u0441\u0442\u0438\u0442 \u0414\u0435\u043D \u043D\u0430
+    \u0411\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u043D\u043E\u0441\u0442\u0442\u0430\",
+    \"Catalan\": \"Feli\xE7 Dia d'Acci\xF3 de Gr\xE0cies\", \"Chinese\": \"\u611F\u6069\u7BC0\u5FEB\u6A02\",
+    \"ChineseSimplified\": \"\u611F\u6069\u8282\u5FEB\u4E50\", \"ChineseTraditional\":
+    \"\u611F\u6069\u7BC0\u5FEB\u6A02\", \"Czech\": \"\u0160\u0165astn\xFD Den d\xEDk\u016Fvzd\xE1n\xED\",
+    \"Danish\": \"God Thanksgiving\", \"Dutch\": \"Gelukkige Thanksgiving\", \"English\":
+    \"Happy Thanksgiving\", \"Estonian\": \"Head t\xE4nup\xFCha\", \"Faroese\": \"G\xF3\xF0
+    takkadagur\", \"Finnish\": \"Hyv\xE4\xE4 kiitosp\xE4iv\xE4\xE4\", \"French\":
+    \"Joyeux Thanksgiving\", \"German\": \"Frohes Erntedankfest\", \"Greek\": \"\u03A7\u03C1\u03CC\u03BD\u03B9\u03B1
+    \u03A0\u03BF\u03BB\u03BB\u03AC \u03B3\u03B9\u03B1 \u03C4\u03B7\u03BD \u0397\u03BC\u03AD\u03C1\u03B1
+    \u03C4\u03C9\u03BD \u0395\u03C5\u03C7\u03B1\u03C1\u03B9\u03C3\u03C4\u03B9\u03CE\u03BD\",
+    \"Hebrew\": \"\u05D7\u05D2 \u05D4\u05D5\u05D3\u05D9\u05D4 \u05E9\u05DE\u05D7\",
+    \"Hungarian\": \"Boldog H\xE1laad\xE1s Napj\xE1t\", \"Icelandic\": \"Gle\xF0ilegan
+    \xFEakkargj\xF6r\xF0ardag\", \"Indonesian\": \"Selamat Hari Thanksgiving\", \"Italian\":
+    \"Buon Giorno del Ringraziamento\", \"Japanese\": \"\u611F\u8B1D\u796D\u304A\u3081\u3067\u3068\u3046\",
+    \"Korean\": \"\uCD94\uC218\uAC10\uC0AC\uC808 \uCD95\uD558\uD574\uC694\", \"Latvian\":
+    \"Laim\u012Bgu Pateic\u012Bbas dienu\", \"Lithuanian\": \"Laimingos Pad\u0117kos
+    dienos\", \"Norwegian\": \"God Thanksgiving\", \"Polish\": \"Szcz\u0119\u015Bliwego
+    \u015Awi\u0119ta Dzi\u0119kczynienia\", \"Portuguese\": \"Feliz Dia de A\xE7\xE3o
+    de Gra\xE7as\", \"Romanian\": \"Ziua Recuno\u0219tin\u021Bei Fericit\u0103\",
+    \"Russian\": \"\u0421 \u0414\u043D\u0451\u043C \u0411\u043B\u0430\u0433\u043E\u0434\u0430\u0440\u0435\u043D\u0438\u044F\",
+    \"SerboCroatian\": \"Sretan Dan zahvalnosti\", \"Slovak\": \"\u0160\u0165astn\xFD
+    De\u0148 v\u010Fakyvzdania\", \"Slovenian\": \"Vesel dan zahvale\", \"Spanish\":
+    \"Feliz D\xEDa de Acci\xF3n de Gracias\", \"Swedish\": \"Glad Thanksgiving\",
+    \"Thai\": \"\u0E2A\u0E38\u0E02\u0E2A\u0E31\u0E19\u0E15\u0E4C\u0E27\u0E31\u0E19\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E1E\u0E23\u0E30\u0E40\u0E08\u0E49\u0E32\",
+    \"Turkish\": \"\u015E\xFCkran G\xFCn\xFC Kutlu Olsun\", \"Ukrainian\": \"\u0417
+    \u0414\u043D\u0435\u043C \u041F\u043E\u0434\u044F\u043A\u0438\", \"Vietnamese\":
+    \"Ch\xFAc M\u1EEBng L\u1EC5 T\u1EA1 \u01A0n\", \"Hindi\": \"\u0927\u0928\u094D\u092F\u0935\u093E\u0926
+    \u0926\u093F\u0935\u0938 \u0915\u0940 \u0936\u0941\u092D\u0915\u093E\u092E\u0928\u093E\u090F\u0902\"}"
 --- !u!4 &1714630287 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7745613462902637607, guid: 695989aa8b47647838d47fab386d6cf8, type: 3}
