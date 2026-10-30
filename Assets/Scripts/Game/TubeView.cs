@@ -526,6 +526,15 @@ public class TubeView : MonoBehaviour
             lazhuRenderer.sprite = spriteOverride;
             lazhuLocalBottomOffset = spriteOverride.bounds.min.y;
         }
+        if (isLongTube) return;
+
+        if (lastCompletedColor == BallColorType.Red)
+        {
+            // Keep the requested red exact, without the general brightness adjustment.
+            lazhuRenderer.color = new Color(246f / 255f, 19f / 255f, 21f / 255f, initialLazhuColor.a);
+            return;
+        }
+
         lazhuRenderer.color = Mathf.Max(tint.r, Mathf.Max(tint.g, tint.b)) <= 0.01f
             ? new Color(1f, 1f, 1f, initialLazhuColor.a)
             : ResolveLazhuTint(tint);
