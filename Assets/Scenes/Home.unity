@@ -498,8 +498,8 @@ MonoBehaviour:
   isEnableBGM: 1
   enableLongTubeLazhuEffect: 1
   buttonColor: {r: 0.62352943, g: 0.011764706, b: 0.011764706, a: 1}
-  targetStepCount: 50
-  cycleStepCount: 1
+  targetStepCount: 2
+  cycleStepCount: 111
   targetCompletedTubeCount: 4
   targetLevelCount: 1
   MaxIdleTime: 5
