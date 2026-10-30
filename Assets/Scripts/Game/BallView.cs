@@ -36,11 +36,20 @@ public class BallView : MonoBehaviour
     private Vector3 defaultGlowScale = Vector3.one;
     private Color defaultBodyColor = Color.white;
     private Color defaultGlowColor = Color.white;
+    private bool movingSortingApplied;
+    private int originalBodySortingLayer;
+    private int originalGlowSortingLayer;
 
     public BallColorType ColorType { get; private set; }
 
     public void SetSortingOrder(int bodyOrder)
     {
+        if (movingSortingApplied)
+        {
+            if (bodyRenderer != null) bodyRenderer.sortingLayerID = originalBodySortingLayer;
+            if (glowRenderer != null) glowRenderer.sortingLayerID = originalGlowSortingLayer;
+            movingSortingApplied = false;
+        }
         if (bodyRenderer != null)
         {
             bodyRenderer.sortingOrder = bodyOrder;
@@ -49,6 +58,29 @@ public class BallView : MonoBehaviour
         if (glowRenderer != null)
         {
             glowRenderer.sortingOrder = bodyOrder - 1;
+        }
+    }
+
+    public void SetMovingSorting()
+    {
+        if (!movingSortingApplied)
+        {
+            if (bodyRenderer != null) originalBodySortingLayer = bodyRenderer.sortingLayerID;
+            if (glowRenderer != null) originalGlowSortingLayer = glowRenderer.sortingLayerID;
+            movingSortingApplied = true;
+        }
+
+        // The tube layer is above the ball layer; moving balls must also clear candles and fire.
+        int foregroundLayer = SortingLayer.NameToID("tube");
+        if (bodyRenderer != null)
+        {
+            bodyRenderer.sortingLayerID = foregroundLayer;
+            bodyRenderer.sortingOrder = 32767;
+        }
+        if (glowRenderer != null)
+        {
+            glowRenderer.sortingLayerID = foregroundLayer;
+            glowRenderer.sortingOrder = 32766;
         }
     }
 
