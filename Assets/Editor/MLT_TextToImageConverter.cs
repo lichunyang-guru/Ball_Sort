@@ -29,7 +29,7 @@ public class MLT_TextToImageConverter : EditorWindow
     private bool isUseTextSize = false;
 
     [System.Serializable]
-    private class TextToImageItem
+    internal class TextToImageItem
     {
         public GameObject gameObject;
         public Text textComponent;

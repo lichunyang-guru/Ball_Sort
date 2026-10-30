@@ -496,6 +496,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isEnableBGM: 1
+  enableLongTubeLazhuEffect: 1
   buttonColor: {r: 0.62352943, g: 0.011764706, b: 0.011764706, a: 1}
   targetStepCount: 50
   cycleStepCount: 1
@@ -2046,6 +2047,7 @@ MonoBehaviour:
     text: "\u99AC\u4E0A\u73A9"
   - language: 42
     text: "\u0905\u092D\u0940 \u0916\u0947\u0932\u0947\u0902"
+  translationJsonText: 
 --- !u!114 &632797736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2067,7 +2069,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 400de59f4d0174d399d1b1b3618fe8d8, type: 3}
     m_FontSize: 50
     m_FontStyle: 1
     m_BestFit: 1
@@ -3716,6 +3718,7 @@ MonoBehaviour:
     text: "\u99AC\u4E0A\u73A9"
   - language: 42
     text: "\u0905\u092D\u0940 \u0916\u0947\u0932\u0947\u0902"
+  translationJsonText: 
 --- !u!114 &814931938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3737,7 +3740,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 400de59f4d0174d399d1b1b3618fe8d8, type: 3}
     m_FontSize: 50
     m_FontStyle: 1
     m_BestFit: 1
@@ -3920,6 +3923,7 @@ MonoBehaviour:
   - language: 42
     text: "\u0928 \u0915\u094B\u0908 \u091F\u093E\u0907\u092E\u0930, \u0928 \u0915\u094B\u0908
       \u092B\u0948\u0938\u0932\u093E\u0964"
+  translationJsonText: 
 --- !u!114 &853062197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3941,7 +3945,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 400de59f4d0174d399d1b1b3618fe8d8, type: 3}
     m_FontSize: 54
     m_FontStyle: 1
     m_BestFit: 0
@@ -4613,6 +4617,7 @@ GameObject:
   - component: {fileID: 1177401561}
   - component: {fileID: 1177401560}
   - component: {fileID: 1177401559}
+  - component: {fileID: 1177401562}
   m_Layer: 5
   m_Name: Text (Legacy) (1)
   m_TagString: Untagged
@@ -4673,7 +4678,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 400de59f4d0174d399d1b1b3618fe8d8, type: 3}
     m_FontSize: 48
     m_FontStyle: 0
     m_BestFit: 0
@@ -4694,6 +4699,124 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1177401557}
   m_CullTransparentMesh: 1
+--- !u!114 &1177401562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1177401557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86f9205579c3440279820de33163ea4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  languageTexts:
+  - language: 40
+    text: "\u4E0B\u4E00\u5173"
+  - language: 0
+    text: Volgende Vlak
+  - language: 1
+    text: "\u0627\u0644\u0645\u0633\u062A\u0648\u0649 \u0627\u0644\u062A\u0627\u0644\u064A"
+  - language: 2
+    text: Hurrengo maila
+  - language: 3
+    text: "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u044B \u045E\u0437\u0440\u043E\u0432\u0435\u043D\u044C"
+  - language: 4
+    text: "\u0421\u043B\u0435\u0434\u0432\u0430\u0449\u043E \u043D\u0438\u0432\u043E"
+  - language: 5
+    text: "Seg\xFCent nivell"
+  - language: 6
+    text: "\u4E0B\u4E00\u95DC"
+  - language: 41
+    text: "\u4E0B\u4E00\u95DC"
+  - language: 7
+    text: "Dal\u0161\xED \xFArove\u0148"
+  - language: 8
+    text: "N\xE6ste niveau"
+  - language: 9
+    text: Volgend niveau
+  - language: 10
+    text: Next Level
+  - language: 11
+    text: "J\xE4rgmine tase"
+  - language: 12
+    text: "N\xE6sta stig"
+  - language: 13
+    text: Seuraava taso
+  - language: 14
+    text: Niveau suivant
+  - language: 15
+    text: "N\xE4chstes Level"
+  - language: 16
+    text: "\u0395\u03C0\u03CC\u03BC\u03B5\u03BD\u03BF \u03B5\u03C0\u03AF\u03C0\u03B5\u03B4\u03BF"
+  - language: 17
+    text: "\u05E9\u05DC\u05D1 \u05D4\u05D1\u05D0"
+  - language: 18
+    text: "K\xF6vetkez\u0151 szint"
+  - language: 19
+    text: "N\xE6sta stig"
+  - language: 20
+    text: Level Berikutnya
+  - language: 21
+    text: Livello successivo
+  - language: 22
+    text: "\u6B21\u306E\u30B9\u30C6\u30FC\u30B8"
+  - language: 23
+    text: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0"
+  - language: 24
+    text: "N\u0101kamais l\u012Bmenis"
+  - language: 25
+    text: Kitas lygis
+  - language: 26
+    text: "Neste niv\xE5"
+  - language: 27
+    text: "Nast\u0119pny poziom"
+  - language: 28
+    text: "Pr\xF3ximo n\xEDvel"
+  - language: 29
+    text: "Nivelul urm\u0103tor"
+  - language: 30
+    text: "\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C"
+  - language: 31
+    text: "Slede\u0107i nivo"
+  - language: 32
+    text: "\u010Eal\u0161ia \xFArove\u0148"
+  - language: 33
+    text: Naslednja stopnja
+  - language: 34
+    text: Siguiente nivel
+  - language: 35
+    text: "N\xE4sta niv\xE5"
+  - language: 36
+    text: "\u0E14\u0E48\u0E32\u0E19\u0E15\u0E48\u0E2D\u0E44\u0E1B"
+  - language: 37
+    text: Sonraki Seviye
+  - language: 38
+    text: "\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439 \u0440\u0456\u0432\u0435\u043D\u044C"
+  - language: 39
+    text: "M\xE0n ti\u1EBFp theo"
+  - language: 42
+    text: "\u0905\u0917\u0932\u093E \u0938\u094D\u0924\u0930"
+  translationJsonText: "{\"Afrikaans\":\"Volgende Vlak\",\"Arabic\":\"\u0627\u0644\u0645\u0633\u062A\u0648\u0649
+    \u0627\u0644\u062A\u0627\u0644\u064A\",\"Basque\":\"Hurrengo maila\",\"Belarusian\":\"\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u044B
+    \u045E\u0437\u0440\u043E\u0432\u0435\u043D\u044C\",\"Bulgarian\":\"\u0421\u043B\u0435\u0434\u0432\u0430\u0449\u043E
+    \u043D\u0438\u0432\u043E\",\"Catalan\":\"Seg\xFCent nivell\",\"Chinese\":\"\u4E0B\u4E00\u95DC\",\"ChineseSimplified\":\"\u4E0B\u4E00\u5173\",\"ChineseTraditional\":\"\u4E0B\u4E00\u95DC\",\"Czech\":\"Dal\u0161\xED
+    \xFArove\u0148\",\"Danish\":\"N\xE6ste niveau\",\"Dutch\":\"Volgend niveau\",\"English\":\"Next
+    Level\",\"Estonian\":\"J\xE4rgmine tase\",\"Faroese\":\"N\xE6sta stig\",\"Finnish\":\"Seuraava
+    taso\",\"French\":\"Niveau suivant\",\"German\":\"N\xE4chstes Level\",\"Greek\":\"\u0395\u03C0\u03CC\u03BC\u03B5\u03BD\u03BF
+    \u03B5\u03C0\u03AF\u03C0\u03B5\u03B4\u03BF\",\"Hebrew\":\"\u05E9\u05DC\u05D1
+    \u05D4\u05D1\u05D0\",\"Hungarian\":\"K\xF6vetkez\u0151 szint\",\"Icelandic\":\"N\xE6sta
+    stig\",\"Indonesian\":\"Level Berikutnya\",\"Italian\":\"Livello successivo\",\"Japanese\":\"\u6B21\u306E\u30B9\u30C6\u30FC\u30B8\",\"Korean\":\"\uB2E4\uC74C
+    \uC2A4\uD14C\uC774\uC9C0\",\"Latvian\":\"N\u0101kamais l\u012Bmenis\",\"Lithuanian\":\"Kitas
+    lygis\",\"Norwegian\":\"Neste niv\xE5\",\"Polish\":\"Nast\u0119pny poziom\",\"Portuguese\":\"Pr\xF3ximo
+    n\xEDvel\",\"Romanian\":\"Nivelul urm\u0103tor\",\"Russian\":\"\u0421\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439
+    \u0443\u0440\u043E\u0432\u0435\u043D\u044C\",\"SerboCroatian\":\"Slede\u0107i
+    nivo\",\"Slovak\":\"\u010Eal\u0161ia \xFArove\u0148\",\"Slovenian\":\"Naslednja
+    stopnja\",\"Spanish\":\"Siguiente nivel\",\"Swedish\":\"N\xE4sta niv\xE5\",\"Thai\":\"\u0E14\u0E48\u0E32\u0E19\u0E15\u0E48\u0E2D\u0E44\u0E1B\",\"Turkish\":\"Sonraki
+    Seviye\",\"Ukrainian\":\"\u041D\u0430\u0441\u0442\u0443\u043F\u043D\u0438\u0439
+    \u0440\u0456\u0432\u0435\u043D\u044C\",\"Vietnamese\":\"M\xE0n ti\u1EBFp theo\",\"Hindi\":\"\u0905\u0917\u0932\u093E
+    \u0938\u094D\u0924\u0930\"}"
 --- !u!1 &1177946009
 GameObject:
   m_ObjectHideFlags: 0
@@ -4835,6 +4958,7 @@ MonoBehaviour:
     text: "Ch\u1EC9 c\xF3 ni\u1EC1m vui thu\u1EA7n t\xFAy!"
   - language: 42
     text: "\u092C\u0938 \u092D\u0930\u092A\u0942\u0930 \u092E\u091C\u093C\u093E!"
+  translationJsonText: 
 --- !u!114 &1177946012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4856,7 +4980,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 400de59f4d0174d399d1b1b3618fe8d8, type: 3}
     m_FontSize: 54
     m_FontStyle: 1
     m_BestFit: 0
@@ -7080,6 +7204,7 @@ MonoBehaviour:
   - language: 42
     text: "\u0907\u0938\u0947 \u0939\u0932 \u0915\u0930\u0928\u0947 \u0915\u0940
       \u0915\u094B\u0936\u093F\u0936 \u0915\u0930\u0947\u0902"
+  translationJsonText: 
 --- !u!114 &1814863279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7101,7 +7226,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 400de59f4d0174d399d1b1b3618fe8d8, type: 3}
     m_FontSize: 60
     m_FontStyle: 1
     m_BestFit: 1

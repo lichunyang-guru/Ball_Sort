@@ -21,6 +21,12 @@ public class MLT_TextSwitch : MonoBehaviour
     [Tooltip("按语言配置的文本列表；找不到系统语言时优先回退到英语，再回退到第一条。")]
     public List<LanguageText> languageTexts = new List<LanguageText>();
 
+#if UNITY_EDITOR
+    [TextArea(5, 12)]
+    [Tooltip("在编辑器中粘贴并导入多语言翻译 JSON。")]
+    public string translationJsonText = string.Empty;
+#endif
+
     private Text txt;
 
     private void Awake()
