@@ -30032,6 +30032,10 @@
                     {
                         "name": "AnimateToWithSelectionBounce",
                         "excluded": false
+                    },
+                    {
+                        "name": "SetMovingSorting",
+                        "excluded": false
                     }
                 ]
             },
