@@ -19607,7 +19607,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyFontDataChanges",
@@ -26215,7 +26215,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDidApplyAnimationProperties",
@@ -34933,6 +34933,36 @@
                     },
                     {
                         "name": "GetUI",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "TextOutlineEffect",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OutlineColor#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OutlineColor#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OutlineWidth#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OutlineWidth#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ModifyMesh$1",
                         "excluded": true
                     }
                 ]
