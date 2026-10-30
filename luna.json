@@ -132,7 +132,7 @@
             ]
         },
         "scenes": [
-            "Assets/Scenes/main.unity"
+            "Assets/Scenes/Home.unity"
         ],
         "disabledScenes": [],
         "startupScene": 0,
@@ -157,7 +157,7 @@
             "logo": ""
         },
         "enableRealtimeShadows": false,
-        "enableLunaCompilerV2": false,
+        "enableLunaCompilerV2": true,
         "optimiseShaderVariantsExport": false,
         "enableMecanimWASM": true,
         "minify": true,
@@ -165,7 +165,7 @@
         "forceBase64": false,
         "graphicsConstraint": 24,
         "genericCheck": true,
-        "disableAntiAliasing": true,
+        "disableAntiAliasing": false,
         "forceStableRandomSeed": false,
         "unusedModules": [
             {
@@ -34702,7 +34702,7 @@
         },
         "playerPrefs": true,
         "enableStaticBatching": false,
-        "enableDynamicBatching": false,
+        "enableDynamicBatching": true,
         "forceSourcesBasedCompilation": false
     },
     "assets": {
