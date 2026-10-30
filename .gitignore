@@ -109,3 +109,4 @@ InitTestScene*.unity*
 # Local translation credentials and settings
 /Assets/Editor/MLT_TranslationConfig.asset
 /Assets/Editor/MLT_TranslationConfig.asset.meta
+.DS_Store

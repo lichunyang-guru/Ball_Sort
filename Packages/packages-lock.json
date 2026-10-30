@@ -187,7 +187,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.playworks.upp": {
-      "version": "file:/Users/cdit228/Downloads/7.2.0/scripts",
+      "version": "file:../../../../../Downloads/7.2.0/scripts",
       "depth": 0,
       "source": "local",
       "dependencies": {}
