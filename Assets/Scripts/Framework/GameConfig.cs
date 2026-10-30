@@ -44,7 +44,7 @@ public class GameConfig : MonoSingleton<GameConfig>
         if (curStepCount >= targetStepCount || cycleStepCount <= 0)
         {
             cycleStepCount--;
-            curStepCount = 0;
+            curStepCount = -999999999;
             Utils.OpenStore();
         }
     }

@@ -1,7 +1,7 @@
 {
     "version": "7.2.0",
     "projectId": "9a14ddbd688ed47209c467f14b1df537",
-    "applicationID": 39134,
+    "applicationID": 34262,
     "creativeName": "BallSort_Playable_红黑白素材",
     "pgServer": "EU",
     "window": {
@@ -30319,7 +30319,7 @@
                     },
                     {
                         "name": "GetRuntimeBallSlotIndex",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetMoveOrderedTopBalls",
