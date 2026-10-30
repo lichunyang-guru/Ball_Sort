@@ -342,10 +342,20 @@ public class GameController : MonoBehaviour
             {
                 backgroundObject = new GameObject("GameBackground");
                 backgroundRenderer = backgroundObject.AddComponent<SpriteRenderer>();
+                // PlayWorks needs an exported material for a runtime-created renderer.
+                SpriteRenderer templateRenderer = ballPrefab != null
+                    ? ballPrefab.GetComponentInChildren<SpriteRenderer>(true)
+                    : null;
+                if (templateRenderer != null)
+                    backgroundRenderer.sharedMaterial = templateRenderer.sharedMaterial;
                 backgroundObjectCreated = true;
             }
             backgroundRenderer.sortingLayerID = SortingLayer.NameToID("Default");
-            backgroundRenderer.sortingOrder = -32768;
+            backgroundRenderer.sortingOrder = -30;
+#if !UNITY_LUNA
+            // Rendering layer masks are not exposed by the PlayWorks runtime.
+            backgroundRenderer.renderingLayerMask = uint.MaxValue;
+#endif
         }
         UpdateBackgroundRenderer();
     }
@@ -360,7 +370,10 @@ public class GameController : MonoBehaviour
         if (texture != backgroundTextureCached)
         {
             backgroundTextureCached = texture;
-            backgroundSpriteCached = CreateSpriteFromTexture(texture);
+            // Reuse the imported sprite when the configured texture is unchanged.
+            backgroundSpriteCached = sceneBackgroundSprite != null && sceneBackgroundSprite.texture == texture
+                ? sceneBackgroundSprite
+                : CreateSpriteFromTexture(texture);
         }
         Sprite sprite = backgroundSpriteCached != null ? backgroundSpriteCached : sceneBackgroundSprite;
         backgroundRenderer.sprite = sprite;

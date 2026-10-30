@@ -30355,7 +30355,7 @@
                     },
                     {
                         "name": "ResolveCompletedLazhuTint",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -30743,15 +30743,15 @@
                     },
                     {
                         "name": "ShouldPlayLazhuEffect",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyLazhuTint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResolveLazhuTint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ResetLazhuTint",
