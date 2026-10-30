@@ -144,9 +144,16 @@ public class GameController : MonoBehaviour
     private SelectionState currentSelection;
     private bool puzzleSolvedInvoked;
     private bool introDropInProgress;
+    private EndPanel endPanel;
 
     private void Start()
     {
+        foreach (Canvas canvas in FindObjectsOfType<Canvas>())
+        {
+            endPanel = canvas.GetComponentInChildren<EndPanel>(true);
+            if (endPanel != null) break;
+        }
+        if (endPanel != null) endPanel.gameObject.SetActive(false);
         EnsureBackgroundRenderer();
         BuildBoard();
     }
@@ -919,10 +926,17 @@ public class GameController : MonoBehaviour
         if (preparedMove.targetCompletedByMove)
         {
             // 满管后的完成动画独立播放，不阻塞后续操作。
-            preparedMove.targetView.PlayCompletedAnimation(
+            Sequence completionSequence = preparedMove.targetView.PlayCompletedAnimation(
                 preparedMove.move.Color,
                 ResolveCompletedLazhuTint(preparedMove.move.Color),
                 ResolveCompletedLazhuSprite(preparedMove.targetView, preparedMove.move.Color));
+            if (preparedMove.targetView.IsLongTube)
+            {
+                if (completionSequence != null && completionSequence.IsActive())
+                    completionSequence.OnComplete(ShowEndPanel);
+                else
+                    ShowEndPanel();
+            }
         }
 
         if (preparedMove.puzzleSolvedByMove && !puzzleSolvedInvoked)
@@ -930,6 +944,17 @@ public class GameController : MonoBehaviour
             puzzleSolvedInvoked = true;
             onPuzzleSolved?.Invoke();
         }
+    }
+
+    private void ShowEndPanel()
+    {
+        if (endPanel == null)
+        {
+            Debug.LogError("未找到 EndPanel，请检查 Canvas 下的面板组件。", this);
+            return;
+        }
+        endPanel.transform.SetAsLastSibling();
+        endPanel.gameObject.SetActive(true);
     }
 
     private PreparedMoveState PrepareMove(
